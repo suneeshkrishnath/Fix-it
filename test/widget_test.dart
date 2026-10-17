@@ -201,6 +201,79 @@ void main() {
     expect(find.text('In progress'), findsOneWidget);
     expect(find.text('Completed'), findsNothing);
   });
+
+  testWidgets('history filters requests and displays recorded cost',
+      (tester) async {
+    final requestRepository = _FakeServiceRequestRepository()
+      ..requests.addAll([
+        ServiceRequest(
+          id: 'electrical-1',
+          requestNumber: 'FX-000101',
+          category: 'Electrical',
+          subcategory: 'Electrical fault',
+          description: 'Hallway light is out.',
+          priority: ServicePriority.normal,
+          createdAt: DateTime(2026, 10, 12),
+          status: ServiceRequestStatus.completed,
+          estimatedCost: 125.50,
+        ),
+        ServiceRequest(
+          id: 'plumbing-1',
+          requestNumber: 'FX-000102',
+          category: 'Plumbing',
+          subcategory: 'Water leakage',
+          description: 'Leak beneath the sink.',
+          priority: ServicePriority.high,
+          createdAt: DateTime(2026, 10, 10),
+          status: ServiceRequestStatus.submitted,
+        ),
+        ServiceRequest(
+          id: 'electrical-2',
+          requestNumber: 'FX-000103',
+          category: 'Electrical',
+          subcategory: 'Switch maintenance',
+          description: 'Bedroom switch is loose.',
+          priority: ServicePriority.low,
+          createdAt: DateTime(2026, 9, 5),
+          status: ServiceRequestStatus.submitted,
+        ),
+      ]);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
+            ..resident = _demoResident),
+          serviceRequestRepositoryProvider
+              .overrideWithValue(requestRepository),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('history-action')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('history-electrical-1')), findsOneWidget);
+    expect(find.textContaining('Cost: 125.50'), findsOneWidget);
+    expect(find.textContaining('Cost not recorded'), findsNWidgets(2));
+
+    await tester.tap(find.byKey(const Key('history-category-filter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Electrical').last);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('history-plumbing-1')), findsNothing);
+    expect(find.byKey(const Key('history-electrical-1')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('history-status-filter')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Completed').last);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('history-electrical-1')), findsOneWidget);
+    expect(find.byKey(const Key('history-electrical-2')), findsNothing);
+  });
 }
 
 const _demoResident = Resident(

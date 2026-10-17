@@ -8,6 +8,7 @@ import '../features/requests/domain/models/service_request.dart';
 import '../features/requests/presentation/screens/create_service_request_screen.dart';
 import '../features/requests/presentation/screens/my_requests_screen.dart';
 import '../features/requests/presentation/screens/request_details_screen.dart';
+import '../features/requests/presentation/screens/service_history_screen.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
@@ -60,10 +61,7 @@ GoRouter buildAppRouter({required bool isAuthenticated}) => GoRouter(
         ),
         GoRoute(
           path: AppRoutes.history,
-          builder: (context, state) => const FeaturePlaceholderScreen(
-            title: 'Service history',
-            description: 'Service history is planned for a later stage.',
-          ),
+          builder: (context, state) => const ServiceHistoryScreen(),
         ),
         GoRoute(
           path: AppRoutes.moveOut,

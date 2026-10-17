@@ -267,9 +267,11 @@ Completed
 # Stage 7
 # Service History Module
 
+Status: **Done** (local request history and filters)
+
 ## Goal
 
-Allow users to see historical requests.
+Allow residents to review saved service requests and filter the local history.
 
 ## Features
 
@@ -290,7 +292,11 @@ Display
 
 ## Definition Of Done
 
-- Historical information accessible
+- History shows request number, category, type, date, status, and recorded cost when available.
+- Date range, category, and status filters can be combined and cleared.
+- Requests without a recorded cost are labeled honestly.
+- Widget/unit tests and `flutter analyze` pass.
+- History is local; remote synchronization and cost updates require a future backend.
 
 ---
 
