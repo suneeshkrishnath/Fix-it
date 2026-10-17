@@ -9,5 +9,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox<dynamic>('fix_it');
+  await Hive.openBox<dynamic>('service_requests');
   runApp(const ProviderScope(child: FixItApp()));
 }

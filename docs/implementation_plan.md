@@ -129,9 +129,11 @@ Dashboard actions:
 # Stage 4
 # Service Request Module
 
+Status: **Done** (local request submission; image attachments deferred to Stage 5)
+
 ## Goal
 
-Allow residents to create complaints.
+Allow residents to create and locally persist service requests in the Android prototype.
 
 ## Features
 
@@ -160,25 +162,17 @@ Fields:
 - Priority
 - Preferred Visit Time
 
-### Attachment Support
-
-Upload Images
-
-Maximum:
-
-- 5 Images
-
 ## API
 
-POST /api/requests
-
-GET /api/requests
-
-GET /api/requests/{id}
+The API endpoints remain future backend work. Requests are stored locally in Hive.
 
 ## Definition Of Done
 
-- Complaint submission successful
+- Category, subcategory, description, and priority can be submitted.
+- Preferred visit date/time is optional.
+- A confirmation screen displays the created request number.
+- Widget tests and `flutter analyze` pass.
+- Photo attachments are handled in Stage 5.
 
 ---
 

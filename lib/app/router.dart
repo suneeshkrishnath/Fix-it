@@ -4,12 +4,15 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/otp_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/dashboard/presentation/feature_placeholder_screen.dart';
+import '../features/requests/domain/models/service_request.dart';
+import '../features/requests/presentation/screens/create_service_request_screen.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
   static const verify = '/verify';
   static const dashboard = '/dashboard';
   static const createRequest = '/requests/new';
+  static const requestSubmitted = '/requests/submitted';
   static const requests = '/requests';
   static const history = '/history';
   static const moveOut = '/move-out';
@@ -34,9 +37,12 @@ GoRouter buildAppRouter({required bool isAuthenticated}) => GoRouter(
         ),
         GoRoute(
           path: AppRoutes.createRequest,
-          builder: (context, state) => const FeaturePlaceholderScreen(
-            title: 'Create service request',
-            description: 'Service request creation is planned for a later stage.',
+          builder: (context, state) => const CreateServiceRequestScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.requestSubmitted,
+          builder: (context, state) => RequestSubmittedScreen(
+            request: state.extra! as ServiceRequest,
           ),
         ),
         GoRoute(

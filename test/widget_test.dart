@@ -6,6 +6,9 @@ import 'package:fix_it/app/app.dart';
 import 'package:fix_it/features/auth/domain/models/resident.dart';
 import 'package:fix_it/features/auth/domain/repositories/auth_repository.dart';
 import 'package:fix_it/features/auth/presentation/providers/auth_providers.dart';
+import 'package:fix_it/features/requests/domain/models/service_request.dart';
+import 'package:fix_it/features/requests/domain/repositories/service_request_repository.dart';
+import 'package:fix_it/features/requests/presentation/providers/service_request_providers.dart';
 
 void main() {
   testWidgets('resident can request and verify a mock OTP', (tester) async {
@@ -103,7 +106,66 @@ void main() {
       await tester.pumpAndSettle();
     }
   });
+
+  testWidgets('service request requires a description', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
+            ..resident = _demoResident),
+          serviceRequestRepositoryProvider
+              .overrideWithValue(_FakeServiceRequestRepository()),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('create-request-action')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Submit request'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add a description of the issue.'), findsOneWidget);
+  });
+
+  testWidgets('resident can submit a service request', (tester) async {
+    final requestRepository = _FakeServiceRequestRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
+            ..resident = _demoResident),
+          serviceRequestRepositoryProvider
+              .overrideWithValue(requestRepository),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('create-request-action')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('request-description')),
+      'Water is leaking under the kitchen sink.',
+    );
+    await tester.tap(find.text('Submit request'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Request FX-000001 submitted'), findsOneWidget);
+    expect(requestRepository.requests, hasLength(1));
+    expect(requestRepository.requests.single.category, 'Plumbing');
+    expect(requestRepository.requests.single.description,
+        'Water is leaking under the kitchen sink.');
+  });
 }
+
+const _demoResident = Resident(
+  name: 'Anna Kowalska',
+  phoneNumber: '+48500000000',
+  apartmentNumber: 'A-302',
+);
 
 class _FakeAuthRepository implements AuthRepository {
   Resident? resident;
@@ -138,4 +200,38 @@ class _FakeAuthRepository implements AuthRepository {
     resident = null;
     _otpRequested = false;
   }
+}
+
+class _FakeServiceRequestRepository implements ServiceRequestRepository {
+  final requests = <ServiceRequest>[];
+
+  @override
+  Future<List<ServiceRequest>> listRequests() async => requests;
+
+  @override
+  Future<ServiceRequest> createRequest({
+    required String category,
+    required String subcategory,
+    required String description,
+    required ServicePriority priority,
+    DateTime? preferredVisitAt,
+    List<String> attachmentPaths = const [],
+  }) async {
+    final request = ServiceRequest(
+      id: 'request-1',
+      requestNumber: 'FX-000001',
+      category: category,
+      subcategory: subcategory,
+      description: description,
+      priority: priority,
+      preferredVisitAt: preferredVisitAt,
+      createdAt: DateTime(2026, 10, 17),
+      attachmentPaths: attachmentPaths,
+    );
+    requests.add(request);
+    return request;
+  }
+
+  @override
+  Future<void> updateRequest(ServiceRequest request) async {}
 }
