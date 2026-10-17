@@ -49,9 +49,11 @@ Establish the Android-only Flutter project structure and baseline architecture f
 # Stage 2
 # Authentication Module
 
+Status: **Done** (local mock authentication)
+
 ## Goal
 
-Implement login and mock OTP verification.
+Implement resident login and fixed-code OTP verification for the Android prototype.
 
 ## Features
 
@@ -78,30 +80,21 @@ Login
 
 ## Mock Behavior
 
-Store residents in database.
+The prototype recognizes the following resident details:
 
-System validates:
+- Phone Number: `+48 500000000`
+- Apartment Number: `A-302`
 
-Phone Number + Apartment Number
+The local mock accepts OTP `123456` and returns a sample resident profile. The signed-in profile is stored in Hive and restored at app startup.
 
-Then generates mock OTP.
-
-Example OTP:
-
-123456
-
-## API Endpoints
-
-POST /api/auth/send-otp
-
-POST /api/auth/verify-otp
-
-GET /api/auth/profile
+The planned API endpoints and database-backed resident lookup remain future backend work; they are not implemented in this Flutter prototype.
 
 ## Definition Of Done
 
-- User login successful
-- Profile loaded successfully
+- Valid resident details progress to OTP verification; invalid details show an error.
+- A valid mock OTP loads the resident profile and opens the dashboard.
+- A saved local session is restored on app startup and can be cleared by signing out.
+- Widget tests and `flutter analyze` pass.
 
 ---
 

@@ -1,14 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class DashboardScreen extends StatelessWidget {
+import '../../../../app/router.dart';
+import '../../auth/presentation/providers/auth_providers.dart';
+
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
+    final resident = ref.watch(authControllerProvider).resident;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Fix-it')),
+      appBar: AppBar(
+        title: const Text('Fix-it'),
+        actions: [
+          IconButton(
+            tooltip: 'Sign out',
+            onPressed: () async {
+              await ref.read(authControllerProvider.notifier).signOut();
+              if (context.mounted) context.go(AppRoutes.login);
+            },
+            icon: const Icon(Icons.logout),
+          ),
+        ],
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -27,7 +45,9 @@ class DashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Apartment service prototype',
+                resident == null
+                    ? 'Apartment service prototype'
+                    : '${resident.name} · Apartment ${resident.apartmentNumber}',
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
