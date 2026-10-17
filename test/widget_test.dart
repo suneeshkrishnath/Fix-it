@@ -28,7 +28,8 @@ void main() {
     await tester.tap(find.text('Verify and continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Anna Kowalska · Apartment A-302'), findsOneWidget);
+    expect(find.text('Welcome, Anna Kowalska'), findsOneWidget);
+    expect(find.text('Apartment A-302'), findsOneWidget);
   });
 
   testWidgets('invalid resident details show an error', (tester) async {
@@ -65,7 +66,42 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Anna Kowalska · Apartment A-302'), findsOneWidget);
+    expect(find.text('Welcome, Anna Kowalska'), findsOneWidget);
+    expect(find.text('Apartment A-302'), findsOneWidget);
+  });
+
+  testWidgets('resident dashboard actions open their destinations',
+      (tester) async {
+    final repository = _FakeAuthRepository()
+      ..resident = const Resident(
+        name: 'Anna Kowalska',
+        phoneNumber: '+48500000000',
+        apartmentNumber: 'A-302',
+      );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [authRepositoryProvider.overrideWithValue(repository)],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    const destinations = [
+      ('create-request-action', 'Create service request'),
+      ('my-requests-action', 'My requests'),
+      ('history-action', 'Service history'),
+      ('move-out-action', 'Move-out request'),
+      ('profile-action', 'Resident profile'),
+    ];
+
+    for (final (key, title) in destinations) {
+      await tester.tap(find.byKey(Key(key)));
+      await tester.pumpAndSettle();
+      expect(find.text(title), findsOneWidget);
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+    }
   });
 }
 

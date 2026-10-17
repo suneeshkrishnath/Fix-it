@@ -101,13 +101,15 @@ The planned API endpoints and database-backed resident lookup remain future back
 # Stage 3
 # Resident Dashboard
 
+Status: **Done** (resident navigation; future modules are marked as planned)
+
 ## Goal
 
-Create main application dashboard.
+Create the resident dashboard and operational navigation for the planned workflows.
 
 ## Features
 
-Cards:
+Dashboard actions:
 
 - Create Service Request
 - My Requests
@@ -117,7 +119,10 @@ Cards:
 
 ## Definition Of Done
 
-- Dashboard navigation operational
+- Dashboard displays resident and apartment context.
+- Create Request, My Requests, History, Move Out Request, and Profile actions navigate to their routes.
+- Unimplemented module destinations are clearly identified as planned rather than functional.
+- Widget tests and `flutter analyze` pass.
 
 ---
 

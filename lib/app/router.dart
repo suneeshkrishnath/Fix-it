@@ -3,11 +3,17 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/otp_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
+import '../features/dashboard/presentation/feature_placeholder_screen.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
   static const verify = '/verify';
   static const dashboard = '/dashboard';
+  static const createRequest = '/requests/new';
+  static const requests = '/requests';
+  static const history = '/history';
+  static const moveOut = '/move-out';
+  static const profile = '/profile';
 }
 
 GoRouter buildAppRouter({required bool isAuthenticated}) => GoRouter(
@@ -25,6 +31,41 @@ GoRouter buildAppRouter({required bool isAuthenticated}) => GoRouter(
         GoRoute(
           path: AppRoutes.dashboard,
           builder: (context, state) => const DashboardScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.createRequest,
+          builder: (context, state) => const FeaturePlaceholderScreen(
+            title: 'Create service request',
+            description: 'Service request creation is planned for a later stage.',
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.requests,
+          builder: (context, state) => const FeaturePlaceholderScreen(
+            title: 'My requests',
+            description: 'Request tracking is planned for a later stage.',
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.history,
+          builder: (context, state) => const FeaturePlaceholderScreen(
+            title: 'Service history',
+            description: 'Service history is planned for a later stage.',
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.moveOut,
+          builder: (context, state) => const FeaturePlaceholderScreen(
+            title: 'Move-out request',
+            description: 'Move-out requests are planned for a later stage.',
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.profile,
+          builder: (context, state) => const FeaturePlaceholderScreen(
+            title: 'Resident profile',
+            description: 'Resident profile details are planned for a later stage.',
+          ),
         ),
       ],
     );
