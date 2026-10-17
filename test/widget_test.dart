@@ -159,6 +159,48 @@ void main() {
     expect(requestRepository.requests.single.description,
         'Water is leaking under the kitchen sink.');
   });
+
+  testWidgets('request details display the saved status timeline',
+      (tester) async {
+    final request = ServiceRequest(
+      id: 'request-1',
+      requestNumber: 'FX-000001',
+      category: 'Plumbing',
+      subcategory: 'Water leakage',
+      description: 'Leak under the kitchen sink.',
+      priority: ServicePriority.high,
+      createdAt: DateTime(2026, 10, 17),
+      status: ServiceRequestStatus.inProgress,
+    );
+    final requestRepository = _FakeServiceRequestRepository()
+      ..requests.add(request);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
+            ..resident = _demoResident),
+          serviceRequestRepositoryProvider
+              .overrideWithValue(requestRepository),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('my-requests-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('request-request-1')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('FX-000001'), findsOneWidget);
+    expect(find.text('Request status'), findsOneWidget);
+    expect(find.text('Submitted'), findsOneWidget);
+    expect(find.text('Accepted'), findsOneWidget);
+    expect(find.text('Assigned'), findsOneWidget);
+    expect(find.text('Appointment scheduled'), findsOneWidget);
+    expect(find.text('In progress'), findsOneWidget);
+    expect(find.text('Completed'), findsNothing);
+  });
 }
 
 const _demoResident = Resident(

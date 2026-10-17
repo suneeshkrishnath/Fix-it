@@ -6,6 +6,8 @@ import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/dashboard/presentation/feature_placeholder_screen.dart';
 import '../features/requests/domain/models/service_request.dart';
 import '../features/requests/presentation/screens/create_service_request_screen.dart';
+import '../features/requests/presentation/screens/my_requests_screen.dart';
+import '../features/requests/presentation/screens/request_details_screen.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
@@ -14,6 +16,7 @@ abstract final class AppRoutes {
   static const createRequest = '/requests/new';
   static const requestSubmitted = '/requests/submitted';
   static const requests = '/requests';
+  static String requestDetails(String requestId) => '/requests/$requestId';
   static const history = '/history';
   static const moveOut = '/move-out';
   static const profile = '/profile';
@@ -47,9 +50,12 @@ GoRouter buildAppRouter({required bool isAuthenticated}) => GoRouter(
         ),
         GoRoute(
           path: AppRoutes.requests,
-          builder: (context, state) => const FeaturePlaceholderScreen(
-            title: 'My requests',
-            description: 'Request tracking is planned for a later stage.',
+          builder: (context, state) => const MyRequestsScreen(),
+        ),
+        GoRoute(
+          path: '/requests/:requestId',
+          builder: (context, state) => RequestDetailsScreen(
+            requestId: state.pathParameters['requestId']!,
           ),
         ),
         GoRoute(

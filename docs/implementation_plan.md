@@ -210,9 +210,13 @@ attachments table
 # Stage 6
 # Request Tracking Module
 
+Status: **Done** (local status timeline; remote real-time updates deferred)
+
 ## Goal
 
-Track complaint lifecycle.
+Let residents view each locally stored request and its current status timeline.
+
+Status changes from technicians or administrators and remote real-time synchronization require a backend and remain out of scope.
 
 ## Statuses
 
@@ -252,7 +256,11 @@ Completed
 
 ## Definition Of Done
 
-- User can view status in real time
+- Residents can open a request from My Requests and view its details.
+- A timeline reflects the request's saved status, including terminal rejected/cancelled states.
+- Loading, error, and empty request-list states are handled.
+- Widget tests and `flutter analyze` pass.
+- Remote real-time synchronization is explicitly deferred until a backend exists.
 
 ---
 
