@@ -16,62 +16,33 @@ Copilot should complete one stage before moving to the next.
 # Stage 1
 # Project Foundation and Architecture
 
+Status: **Done** (Flutter Android prototype scope)
+
 ## Goal
 
-Establish project structure and baseline architecture.
+Establish the Android-only Flutter project structure and baseline architecture for the resident application.
 
 ## Deliverables
 
 ### Mobile Application
 
-Create React Native project structure.
+- Flutter Android scaffold with application ID `com.iks.mobile.fix_it`.
+- App composition and centralized GoRouter setup under `lib/app/`.
+- Shared Material 3 theme under `lib/core/theme/`.
+- Dashboard presentation under `lib/features/dashboard/presentation/`.
+- Riverpod initialized at the application entry point.
+- Flutter dependencies and a widget smoke test configured.
 
-Folders:
+### Out Of Scope
 
-src/
-├── screens
-├── components
-├── navigation
-├── services
-├── api
-├── hooks
-├── store
-├── assets
-├── models
-└── utils
-
-### Backend
-
-Create Spring Boot project.
-
-Packages:
-
-com.apartment.auth
-com.apartment.resident
-com.apartment.request
-com.apartment.moveout
-com.apartment.technician
-com.apartment.notification
-
-### Database
-
-Create database schema.
-
-Tables:
-
-- residents
-- apartments
-- service_requests
-- attachments
-- technicians
-- appointments
-- move_out_requests
+- The React Native and Spring Boot projects and database schema in the original proposal are not part of this Flutter prototype. Do not create them unless the user explicitly expands scope.
 
 ## Definition Of Done
 
-- Mobile project runs
-- Backend starts
-- Database connection works
+- `flutter analyze` passes.
+- `flutter test` passes.
+- An Android debug APK builds.
+- App entry point, routing, theme, and feature presentation are separated.
 
 ---
 

@@ -1,4 +1,4 @@
-package com.example.fix_it
+package com.iks.mobile.fix_it
 
 import io.flutter.embedding.android.FlutterActivity
 
