@@ -179,13 +179,19 @@ The API endpoints remain future backend work. Requests are stored locally in Hiv
 # Stage 5
 # File Upload Module
 
+Status: **Blocked / Deferred Change Request**
+
+Change request: Revisit Android gallery/camera image selection, the five-image limit, file metadata, and upload/storage handling in a later approved stage. The `image_picker` dependency is intentionally not included yet. Do not mark this stage complete until image attachment scope is approved and its storage behavior is implemented and tested.
+
 ## Goal
 
-Store complaint images.
+Store complaint images after the deferred change request is approved.
 
 ## Implementation
 
-Upload files to:
+The original proposal specifies remote uploads to AWS S3 and metadata in an attachments table. Neither service exists in the current Flutter prototype; do not implement the integration without explicit direction.
+
+Proposed future storage:
 
 AWS S3
 
@@ -193,16 +199,11 @@ Store metadata inside:
 
 attachments table
 
-## API
-
-POST /api/attachments
-
-DELETE /api/attachments/{id}
-
 ## Definition Of Done
 
-- Images uploaded successfully
-- Images linked to requests
+- Approved image selection works within agreed type, size, and count limits.
+- Image metadata and links persist with the service request.
+- Any remote upload service is explicitly configured and tested.
 
 ---
 
