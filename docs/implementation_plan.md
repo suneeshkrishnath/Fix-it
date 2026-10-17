@@ -16,71 +16,44 @@ Copilot should complete one stage before moving to the next.
 # Stage 1
 # Project Foundation and Architecture
 
+Status: **Done** (Flutter Android prototype scope)
+
 ## Goal
 
-Establish project structure and baseline architecture.
+Establish the Android-only Flutter project structure and baseline architecture for the resident application.
 
 ## Deliverables
 
 ### Mobile Application
 
-Create React Native project structure.
+- Flutter Android scaffold with application ID `com.iks.mobile.fix_it`.
+- App composition and centralized GoRouter setup under `lib/app/`.
+- Shared Material 3 theme under `lib/core/theme/`.
+- Dashboard presentation under `lib/features/dashboard/presentation/`.
+- Riverpod initialized at the application entry point.
+- Flutter dependencies and a widget smoke test configured.
 
-Folders:
+### Out Of Scope
 
-src/
-├── screens
-├── components
-├── navigation
-├── services
-├── api
-├── hooks
-├── store
-├── assets
-├── models
-└── utils
-
-### Backend
-
-Create Spring Boot project.
-
-Packages:
-
-com.apartment.auth
-com.apartment.resident
-com.apartment.request
-com.apartment.moveout
-com.apartment.technician
-com.apartment.notification
-
-### Database
-
-Create database schema.
-
-Tables:
-
-- residents
-- apartments
-- service_requests
-- attachments
-- technicians
-- appointments
-- move_out_requests
+- The React Native and Spring Boot projects and database schema in the original proposal are not part of this Flutter prototype. Do not create them unless the user explicitly expands scope.
 
 ## Definition Of Done
 
-- Mobile project runs
-- Backend starts
-- Database connection works
+- `flutter analyze` passes.
+- `flutter test` passes.
+- An Android debug APK builds.
+- App entry point, routing, theme, and feature presentation are separated.
 
 ---
 
 # Stage 2
 # Authentication Module
 
+Status: **Done** (local mock authentication)
+
 ## Goal
 
-Implement login and mock OTP verification.
+Implement resident login and fixed-code OTP verification for the Android prototype.
 
 ## Features
 
@@ -107,43 +80,36 @@ Login
 
 ## Mock Behavior
 
-Store residents in database.
+The prototype recognizes the following resident details:
 
-System validates:
+- Phone Number: `+48 500000000`
+- Apartment Number: `A-302`
 
-Phone Number + Apartment Number
+The local mock accepts OTP `123456` and returns a sample resident profile. The signed-in profile is stored in Hive and restored at app startup.
 
-Then generates mock OTP.
-
-Example OTP:
-
-123456
-
-## API Endpoints
-
-POST /api/auth/send-otp
-
-POST /api/auth/verify-otp
-
-GET /api/auth/profile
+The planned API endpoints and database-backed resident lookup remain future backend work; they are not implemented in this Flutter prototype.
 
 ## Definition Of Done
 
-- User login successful
-- Profile loaded successfully
+- Valid resident details progress to OTP verification; invalid details show an error.
+- A valid mock OTP loads the resident profile and opens the dashboard.
+- A saved local session is restored on app startup and can be cleared by signing out.
+- Widget tests and `flutter analyze` pass.
 
 ---
 
 # Stage 3
 # Resident Dashboard
 
+Status: **Done** (resident navigation; future modules are marked as planned)
+
 ## Goal
 
-Create main application dashboard.
+Create the resident dashboard and operational navigation for the planned workflows.
 
 ## Features
 
-Cards:
+Dashboard actions:
 
 - Create Service Request
 - My Requests
@@ -153,16 +119,21 @@ Cards:
 
 ## Definition Of Done
 
-- Dashboard navigation operational
+- Dashboard displays resident and apartment context.
+- Create Request, My Requests, History, Move Out Request, and Profile actions navigate to their routes.
+- Unimplemented module destinations are clearly identified as planned rather than functional.
+- Widget tests and `flutter analyze` pass.
 
 ---
 
 # Stage 4
 # Service Request Module
 
+Status: **Done** (local request submission; image attachments deferred to Stage 5)
+
 ## Goal
 
-Allow residents to create complaints.
+Allow residents to create and locally persist service requests in the Android prototype.
 
 ## Features
 
@@ -191,38 +162,36 @@ Fields:
 - Priority
 - Preferred Visit Time
 
-### Attachment Support
-
-Upload Images
-
-Maximum:
-
-- 5 Images
-
 ## API
 
-POST /api/requests
-
-GET /api/requests
-
-GET /api/requests/{id}
+The API endpoints remain future backend work. Requests are stored locally in Hive.
 
 ## Definition Of Done
 
-- Complaint submission successful
+- Category, subcategory, description, and priority can be submitted.
+- Preferred visit date/time is optional.
+- A confirmation screen displays the created request number.
+- Widget tests and `flutter analyze` pass.
+- Photo attachments are handled in Stage 5.
 
 ---
 
 # Stage 5
 # File Upload Module
 
+Status: **Blocked / Deferred Change Request**
+
+Change request: Revisit Android gallery/camera image selection, the five-image limit, file metadata, and upload/storage handling in a later approved stage. The `image_picker` dependency is intentionally not included yet. Do not mark this stage complete until image attachment scope is approved and its storage behavior is implemented and tested.
+
 ## Goal
 
-Store complaint images.
+Store complaint images after the deferred change request is approved.
 
 ## Implementation
 
-Upload files to:
+The original proposal specifies remote uploads to AWS S3 and metadata in an attachments table. Neither service exists in the current Flutter prototype; do not implement the integration without explicit direction.
+
+Proposed future storage:
 
 AWS S3
 
@@ -230,25 +199,24 @@ Store metadata inside:
 
 attachments table
 
-## API
-
-POST /api/attachments
-
-DELETE /api/attachments/{id}
-
 ## Definition Of Done
 
-- Images uploaded successfully
-- Images linked to requests
+- Approved image selection works within agreed type, size, and count limits.
+- Image metadata and links persist with the service request.
+- Any remote upload service is explicitly configured and tested.
 
 ---
 
 # Stage 6
 # Request Tracking Module
 
+Status: **Done** (local status timeline; remote real-time updates deferred)
+
 ## Goal
 
-Track complaint lifecycle.
+Let residents view each locally stored request and its current status timeline.
+
+Status changes from technicians or administrators and remote real-time synchronization require a backend and remain out of scope.
 
 ## Statuses
 
@@ -288,16 +256,22 @@ Completed
 
 ## Definition Of Done
 
-- User can view status in real time
+- Residents can open a request from My Requests and view its details.
+- A timeline reflects the request's saved status, including terminal rejected/cancelled states.
+- Loading, error, and empty request-list states are handled.
+- Widget tests and `flutter analyze` pass.
+- Remote real-time synchronization is explicitly deferred until a backend exists.
 
 ---
 
 # Stage 7
 # Service History Module
 
+Status: **Done** (local request history and filters)
+
 ## Goal
 
-Allow users to see historical requests.
+Allow residents to review saved service requests and filter the local history.
 
 ## Features
 
@@ -318,7 +292,11 @@ Display
 
 ## Definition Of Done
 
-- Historical information accessible
+- History shows request number, category, type, date, status, and recorded cost when available.
+- Date range, category, and status filters can be combined and cleared.
+- Requests without a recorded cost are labeled honestly.
+- Widget/unit tests and `flutter analyze` pass.
+- History is local; remote synchronization and cost updates require a future backend.
 
 ---
 

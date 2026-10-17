@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.fix_it"
+    namespace = "com.iks.mobile.fix_it"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.fix_it"
+        applicationId = "com.iks.mobile.fix_it"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
