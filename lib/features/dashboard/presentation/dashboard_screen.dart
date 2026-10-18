@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
+import '../../../../l10n/app_localizations_extension.dart';
 import '../../auth/presentation/providers/auth_providers.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -11,13 +12,14 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final resident = ref.watch(authControllerProvider).resident;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fix-it'),
+        title: Text(l10n.appName),
         actions: [
           IconButton(
-            tooltip: 'Sign out',
+            tooltip: l10n.signOut,
             onPressed: () async {
               await ref.read(authControllerProvider.notifier).signOut();
               if (context.mounted) context.go(AppRoutes.login);
@@ -30,50 +32,52 @@ class DashboardScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         children: [
           Text(
-            'Welcome${resident == null ? '' : ', ${resident.name}'}',
+            resident == null
+                ? l10n.welcomeToFixIt
+                : l10n.welcomeResident(resident.name),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           if (resident != null) ...[
             const SizedBox(height: 4),
-            Text('Apartment ${resident.apartmentNumber}'),
+            Text(l10n.apartmentValue(resident.apartmentNumber)),
           ],
           const SizedBox(height: 28),
-          Text('Service requests', style: Theme.of(context).textTheme.titleMedium),
+          Text(l10n.serviceRequests, style: Theme.of(context).textTheme.titleMedium),
           _DashboardAction(
             key: const Key('create-request-action'),
             icon: Icons.add_circle_outline,
-            title: 'Create service request',
-            subtitle: 'Report a maintenance issue',
+            title: l10n.createServiceRequest,
+            subtitle: l10n.reportMaintenanceIssue,
             onTap: () => context.push(AppRoutes.createRequest),
           ),
           _DashboardAction(
             key: const Key('my-requests-action'),
             icon: Icons.assignment_outlined,
-            title: 'My requests',
-            subtitle: 'Track open requests',
+            title: l10n.myRequests,
+            subtitle: l10n.trackOpenRequests,
             onTap: () => context.push(AppRoutes.requests),
           ),
           _DashboardAction(
             key: const Key('history-action'),
             icon: Icons.history,
-            title: 'Service history',
-            subtitle: 'Review completed services',
+            title: l10n.serviceHistory,
+            subtitle: l10n.reviewCompletedServices,
             onTap: () => context.push(AppRoutes.history),
           ),
           const Divider(),
-          Text('Apartment', style: Theme.of(context).textTheme.titleMedium),
+          Text(l10n.apartmentSection, style: Theme.of(context).textTheme.titleMedium),
           _DashboardAction(
             key: const Key('move-out-action'),
             icon: Icons.exit_to_app,
-            title: 'Move-out request',
-            subtitle: 'Start a move-out request',
+            title: l10n.moveOutRequest,
+            subtitle: l10n.startMoveOutRequest,
             onTap: () => context.push(AppRoutes.moveOut),
           ),
           _DashboardAction(
             key: const Key('profile-action'),
             icon: Icons.person_outline,
-            title: 'Resident profile',
-            subtitle: 'View resident details',
+            title: l10n.residentProfile,
+            subtitle: l10n.viewResidentDetails,
             onTap: () => context.push(AppRoutes.profile),
           ),
         ],

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
 import '../providers/auth_providers.dart';
+import '../utils/auth_error_localization.dart';
+import '../../../../l10n/app_localizations_extension.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   const OtpScreen({super.key});
@@ -31,9 +33,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Verify phone number')),
+      appBar: AppBar(title: Text(l10n.verifyPhoneNumber)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -44,27 +47,27 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Enter your verification code',
+                    l10n.enterVerificationCode,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
-                  const Text('The prototype uses a fixed mock code.'),
+                  Text(l10n.mockCodeExplanation),
                   const SizedBox(height: 20),
-                  const Text('Prototype code: 123456'),
+                  Text(l10n.prototypeCode),
                   const SizedBox(height: 20),
                   TextField(
                     key: const Key('otp-field'),
                     controller: _codeController,
                     keyboardType: TextInputType.number,
                     maxLength: 6,
-                    decoration: const InputDecoration(
-                      labelText: 'Verification code',
+                    decoration: InputDecoration(
+                      labelText: l10n.verificationCode,
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  if (authState.error case final error?) ...[
+                  if (authState.error != null) ...[
                     Text(
-                      error,
+                      localizedAuthError(context, authState),
                       style: TextStyle(color: Theme.of(context).colorScheme.error),
                     ),
                   ],
@@ -73,11 +76,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                     onPressed: authState.isLoading ? null : _verify,
                     child: authState.isLoading
                         ? const CircularProgressIndicator()
-                        : const Text('Verify and continue'),
+                        : Text(l10n.verifyAndContinue),
                   ),
                   TextButton(
                     onPressed: () => context.go(AppRoutes.login),
-                    child: const Text('Back to sign in'),
+                    child: Text(l10n.backToSignIn),
                   ),
                 ],
               ),

@@ -6,6 +6,9 @@ import 'package:fix_it/app/app.dart';
 import 'package:fix_it/features/auth/domain/models/resident.dart';
 import 'package:fix_it/features/auth/domain/repositories/auth_repository.dart';
 import 'package:fix_it/features/auth/presentation/providers/auth_providers.dart';
+import 'package:fix_it/features/move_out/domain/models/move_out_request.dart';
+import 'package:fix_it/features/move_out/domain/repositories/move_out_repository.dart';
+import 'package:fix_it/features/move_out/presentation/providers/move_out_providers.dart';
 import 'package:fix_it/features/requests/domain/models/service_request.dart';
 import 'package:fix_it/features/requests/domain/repositories/service_request_repository.dart';
 import 'package:fix_it/features/requests/presentation/providers/service_request_providers.dart';
@@ -84,7 +87,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [authRepositoryProvider.overrideWithValue(repository)],
+        overrides: [
+          authRepositoryProvider.overrideWithValue(repository),
+          moveOutRepositoryProvider.overrideWithValue(_FakeMoveOutRepository()),
+        ],
         child: const FixItApp(),
       ),
     );
@@ -274,6 +280,123 @@ void main() {
     expect(find.byKey(const Key('history-electrical-1')), findsOneWidget);
     expect(find.byKey(const Key('history-electrical-2')), findsNothing);
   });
+
+  testWidgets('profile shows tenant, apartment, tenancy and contract details',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
+            ..resident = _demoResident),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('profile-action')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tenant details'), findsOneWidget);
+    expect(find.text('Apartment details'), findsOneWidget);
+    expect(find.text('Tower 3'), findsOneWidget);
+    expect(find.textContaining('Dubai Marina'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Contract details'), 200);
+    expect(find.text('Tenancy details'), findsOneWidget);
+    expect(find.text('Contract details'), findsOneWidget);
+  });
+
+  testWidgets('closed cases show resolution details', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
+            ..resident = _demoResident),
+          serviceRequestRepositoryProvider
+              .overrideWithValue(_FakeServiceRequestRepository()),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('my-requests-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('closed-cases-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('closed-case-closed-1')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Approved by manager'), findsOneWidget);
+    expect(find.text('Omar Haddad'), findsOneWidget);
+    expect(find.text('Rashid Al Mansoori'), findsOneWidget);
+    expect(find.text('Closing comments'), findsOneWidget);
+  });
+
+  testWidgets('move-out form validates and then shows progress',
+      (tester) async {
+    final moveOutRepository = _FakeMoveOutRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
+            ..resident = _demoResident),
+          moveOutRepositoryProvider.overrideWithValue(moveOutRepository),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('move-out-action')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('moveout-submit')));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose a move-out date.'), findsOneWidget);
+    expect(find.text('Enter a reason for moving out.'), findsOneWidget);
+    expect(moveOutRepository.requests, isEmpty);
+
+    await tester.tap(find.byKey(const Key('moveout-date')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('moveout-reason')), 'Relocating');
+    await tester.enterText(
+        find.byKey(const Key('moveout-address')), 'Business Bay, Dubai');
+    await tester.tap(find.byKey(const Key('moveout-submit')));
+    await tester.pumpAndSettle();
+
+    expect(moveOutRepository.requests, hasLength(1));
+    expect(find.text('Your move-out request'), findsOneWidget);
+    expect(find.byKey(const Key('moveout-step-closed')), findsOneWidget);
+  });
+
+  testWidgets('login can switch to Arabic and applies right-to-left layout',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Resident sign in'), findsOneWidget);
+    await tester.tap(find.text('العربية'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('تسجيل دخول السكان'), findsOneWidget);
+    expect(find.text('رقم الهاتف'), findsOneWidget);
+    expect(
+      Directionality.of(tester.element(find.byType(Scaffold).first)),
+      TextDirection.rtl,
+    );
+
+    await tester.tap(find.text('إرسال رمز التحقق'));
+    await tester.pumpAndSettle();
+    expect(find.text('أدخل رقم هاتفك.'), findsOneWidget);
+  });
+
 }
 
 const _demoResident = Resident(
@@ -314,6 +437,34 @@ class _FakeAuthRepository implements AuthRepository {
   Future<void> signOut() async {
     resident = null;
     _otpRequested = false;
+  }
+}
+
+class _FakeMoveOutRepository implements MoveOutRepository {
+  final requests = <MoveOutRequest>[];
+
+  @override
+  Future<List<MoveOutRequest>> listRequests() async => List.of(requests);
+
+  @override
+  Future<MoveOutRequest> createRequest({
+    required DateTime moveOutDate,
+    required String reason,
+    required String contactNumber,
+    required String forwardingAddress,
+    String notes = '',
+  }) async {
+    final request = MoveOutRequest(
+      id: 'moveout-1',
+      moveOutDate: moveOutDate,
+      reason: reason,
+      contactNumber: contactNumber,
+      forwardingAddress: forwardingAddress,
+      notes: notes,
+      createdAt: DateTime(2026, 10, 18),
+    );
+    requests.add(request);
+    return request;
   }
 }
 

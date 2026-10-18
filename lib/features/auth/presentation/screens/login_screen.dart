@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
 import '../providers/auth_providers.dart';
+import '../utils/auth_error_localization.dart';
+import '../../../../app/locale_controller.dart';
+import '../../../../l10n/app_localizations_extension.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -36,9 +39,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    final locale = ref.watch(localeControllerProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Resident sign in')),
+      appBar: AppBar(title: Text(l10n.residentSignIn)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -50,23 +55,46 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Text(l10n.selectLanguage),
+                    const SizedBox(height: 8),
+                    SegmentedButton<String>(
+                      key: const Key('language-selector'),
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(
+                          value: 'en',
+                          label: Text(l10n.languageEnglish),
+                        ),
+                        ButtonSegment(
+                          value: 'ar',
+                          label: Text(l10n.languageArabic),
+                        ),
+                      ],
+                      selected: {locale.languageCode},
+                      onSelectionChanged: (selection) {
+                        ref
+                            .read(localeControllerProvider.notifier)
+                            .setLanguage(selection.first);
+                      },
+                    ),
+                    const SizedBox(height: 28),
                     Text(
-                      'Welcome to Fix-it',
+                      l10n.welcomeToFixIt,
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 8),
-                    const Text('Sign in with your resident details.'),
+                    Text(l10n.signInPrompt),
                     const SizedBox(height: 28),
                     TextFormField(
                       key: const Key('phone-field'),
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone number',
+                      decoration: InputDecoration(
+                        labelText: l10n.phoneNumber,
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) => value == null || value.trim().isEmpty
-                          ? 'Enter your phone number.'
+                          ? l10n.enterPhoneNumber
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -74,18 +102,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       key: const Key('apartment-field'),
                       controller: _apartmentController,
                       textCapitalization: TextCapitalization.characters,
-                      decoration: const InputDecoration(
-                        labelText: 'Apartment number',
+                      decoration: InputDecoration(
+                        labelText: l10n.apartmentNumber,
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) => value == null || value.trim().isEmpty
-                          ? 'Enter your apartment number.'
+                          ? l10n.enterApartmentNumber
                           : null,
                     ),
-                    if (authState.error case final error?) ...[
+                    if (authState.error != null) ...[
                       const SizedBox(height: 12),
                       Text(
-                        error,
+                        localizedAuthError(context, authState),
                         style: TextStyle(color: Theme.of(context).colorScheme.error),
                       ),
                     ],
@@ -94,11 +122,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onPressed: authState.isLoading ? null : _requestCode,
                       child: authState.isLoading
                           ? const CircularProgressIndicator()
-                          : const Text('Send verification code'),
+                          : Text(l10n.sendVerificationCode),
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'Prototype resident: +48 500000000, apartment A-302',
+                      l10n.prototypeResident('+48 500000000', 'A-302'),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],

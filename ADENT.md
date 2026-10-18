@@ -20,7 +20,7 @@ The product plan describes these intended resident workflows:
 - Track request status and view service history
 - Submit and track move-out requests
 
-The plan excludes online payments, chat, AI categorization, a vendor marketplace, and multilingual support from the MVP. Technician and administrator workflows are not part of the resident mobile app unless the user explicitly expands its scope.
+The plan excludes online payments, chat, AI categorization, and a vendor marketplace from the MVP. English and Arabic are supported in the resident prototype, with language selection before login and right-to-left layout for Arabic. Technician and administrator workflows are not part of the resident mobile app unless the user explicitly expands its scope.
 
 ## Source Documents and Conflicts
 

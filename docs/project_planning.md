@@ -348,6 +348,15 @@ Submitted
 
 ---
 
+# Language Support
+
+- Let residents choose English or Arabic on the sign-in screen before authentication.
+- Apply the selected language throughout the resident app and remember it on the device.
+- Use right-to-left layout when Arabic is selected.
+- Keep English as the default for new installations.
+
+---
+
 # Non-Functional Requirements
 
 ## Performance
@@ -461,5 +470,3 @@ Not Included
 ❌ AI Classification
 
 ❌ Vendor Marketplace
-
-❌ Multi-language Support

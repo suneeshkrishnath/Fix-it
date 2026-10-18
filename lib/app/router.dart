@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/otp_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
-import '../features/dashboard/presentation/feature_placeholder_screen.dart';
+import '../features/move_out/presentation/screens/move_out_screen.dart';
+import '../features/profile/presentation/screens/resident_profile_screen.dart';
 import '../features/requests/domain/models/service_request.dart';
+import '../features/requests/presentation/screens/closed_cases_screen.dart';
 import '../features/requests/presentation/screens/create_service_request_screen.dart';
 import '../features/requests/presentation/screens/my_requests_screen.dart';
 import '../features/requests/presentation/screens/request_details_screen.dart';
@@ -18,6 +20,7 @@ abstract final class AppRoutes {
   static const requestSubmitted = '/requests/submitted';
   static const requests = '/requests';
   static String requestDetails(String requestId) => '/requests/$requestId';
+  static const closedCases = '/cases/closed';
   static const history = '/history';
   static const moveOut = '/move-out';
   static const profile = '/profile';
@@ -60,22 +63,20 @@ GoRouter buildAppRouter({required bool isAuthenticated}) => GoRouter(
           ),
         ),
         GoRoute(
+          path: AppRoutes.closedCases,
+          builder: (context, state) => const ClosedCasesScreen(),
+        ),
+        GoRoute(
           path: AppRoutes.history,
           builder: (context, state) => const ServiceHistoryScreen(),
         ),
         GoRoute(
           path: AppRoutes.moveOut,
-          builder: (context, state) => const FeaturePlaceholderScreen(
-            title: 'Move-out request',
-            description: 'Move-out requests are planned for a later stage.',
-          ),
+          builder: (context, state) => const MoveOutScreen(),
         ),
         GoRoute(
           path: AppRoutes.profile,
-          builder: (context, state) => const FeaturePlaceholderScreen(
-            title: 'Resident profile',
-            description: 'Resident profile details are planned for a later stage.',
-          ),
+          builder: (context, state) => const ResidentProfileScreen(),
         ),
       ],
     );

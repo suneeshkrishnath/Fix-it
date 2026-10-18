@@ -52,4 +52,16 @@ const paidServiceGroups = [
   ),
 ];
 
-final allServiceGroups = [...freeServiceGroups, ...paidServiceGroups];
+// List-only entries; details and request flows are future scope.
+const additionalServiceGroups = [
+  ServiceGroup(
+    name: 'Additional Services',
+    services: ['Housemaid', 'Babysitter', 'Proxy driver', 'Deep cleaning'],
+  ),
+];
+
+final allServiceGroups = [
+  ...freeServiceGroups,
+  ...paidServiceGroups,
+  ...additionalServiceGroups,
+];

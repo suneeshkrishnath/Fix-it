@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../l10n/app_localizations_extension.dart';
+import '../../../../l10n/service_localization.dart';
 import '../../domain/models/service_request.dart';
+import '../providers/closed_case_providers.dart';
 import '../providers/service_request_providers.dart';
 
 class RequestDetailsScreen extends ConsumerWidget {
@@ -16,15 +19,17 @@ class RequestDetailsScreen extends ConsumerWidget {
             body: Center(child: CircularProgressIndicator()),
           ),
           error: (error, stackTrace) => Scaffold(
-            appBar: AppBar(title: const Text('Request details')),
-            body: Center(child: Text('Could not load request: $error')),
+            appBar: AppBar(title: Text(context.l10n.requestDetails)),
+            body: Center(
+              child: Text(context.l10n.couldNotLoadRequest(error.toString())),
+            ),
           ),
           data: (requests) {
             final matches = requests.where((request) => request.id == requestId);
             if (matches.isEmpty) {
               return Scaffold(
-                appBar: AppBar(title: const Text('Request details')),
-                body: const Center(child: Text('Request not found.')),
+                appBar: AppBar(title: Text(context.l10n.requestDetails)),
+                body: Center(child: Text(context.l10n.requestNotFound)),
               );
             }
             return _RequestDetails(request: matches.first);
@@ -33,29 +38,40 @@ class RequestDetailsScreen extends ConsumerWidget {
   }
 }
 
-class _RequestDetails extends StatelessWidget {
+const _technicianStatuses = {
+  ServiceRequestStatus.assigned,
+  ServiceRequestStatus.appointmentScheduled,
+  ServiceRequestStatus.inProgress,
+  ServiceRequestStatus.completed,
+};
+
+class _RequestDetails extends ConsumerWidget {
   const _RequestDetails({required this.request});
 
   final ServiceRequest request;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final technician = _technicianStatuses.contains(request.status)
+        ? ref.read(closedCaseRepositoryProvider).technicianForRequest(request.id)
+        : null;
     final timeline = _statusTimeline(request.status);
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(request.requestNumber)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Text(
-            request.category,
+            localizedServiceCategory(l10n, request.category),
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 4),
-          Text(request.subcategory),
+          Text(localizedServiceType(l10n, request.subcategory)),
           const SizedBox(height: 16),
           Text(request.description),
           const SizedBox(height: 24),
-          Text('Request status', style: Theme.of(context).textTheme.titleLarge),
+          Text(l10n.requestStatus, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
           for (var index = 0; index < timeline.length; index++)
             _TimelineEntry(
@@ -64,9 +80,24 @@ class _RequestDetails extends StatelessWidget {
               isLast: index == timeline.length - 1,
               submittedAt: index == 0 ? request.createdAt : null,
             ),
+          if (technician != null) ...[
+            Card(
+              key: const Key('technician-card'),
+              child: ListTile(
+                leading: const CircleAvatar(child: Icon(Icons.engineering)),
+                title: Text(technician.name),
+                subtitle: Text(
+                  '${l10n.assignedTechnician} · ${technician.specialty}\n${technician.phoneNumber}',
+                ),
+                isThreeLine: true,
+              ),
+            ),
+            Text(l10n.sampleDataNotice,
+                style: Theme.of(context).textTheme.bodySmall),
+          ],
           const SizedBox(height: 16),
           Text(
-            'Status shown is the latest information saved on this device.',
+            l10n.statusSavedOnDevice,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -117,7 +148,7 @@ class _TimelineEntry extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_statusLabel(status)),
+                  Text(localizedStatus(context.l10n, status.name)),
                   if (submittedAt != null)
                     Text(
                       MaterialLocalizations.of(context)
@@ -150,13 +181,3 @@ List<ServiceRequestStatus> _statusTimeline(ServiceRequestStatus current) {
   return standard.take(standard.indexOf(current) + 1).toList();
 }
 
-String _statusLabel(ServiceRequestStatus status) => switch (status) {
-      ServiceRequestStatus.submitted => 'Submitted',
-      ServiceRequestStatus.accepted => 'Accepted',
-      ServiceRequestStatus.assigned => 'Assigned',
-      ServiceRequestStatus.appointmentScheduled => 'Appointment scheduled',
-      ServiceRequestStatus.inProgress => 'In progress',
-      ServiceRequestStatus.completed => 'Completed',
-      ServiceRequestStatus.rejected => 'Rejected',
-      ServiceRequestStatus.cancelled => 'Cancelled',
-    };

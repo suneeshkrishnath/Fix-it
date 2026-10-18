@@ -11,6 +11,15 @@ Each stage should deliver a fully functional and testable outcome.
 
 Copilot should complete one stage before moving to the next.
 
+## Delivery Phases
+
+- **Phase 1:** Stages 1 to 8 (resident mobile app, Flutter Android prototype)
+- **Phase 2:** Stages 9 to 12 (administrator and technician portals, notifications, production deployment)
+
+---
+
+# PHASE 1: Resident Mobile App (Stages 1-8)
+
 ---
 
 # Stage 1
@@ -49,7 +58,7 @@ Establish the Android-only Flutter project structure and baseline architecture f
 # Stage 2
 # Authentication Module
 
-Status: **Done** (local mock authentication)
+Status: **Done** (mock authentication and persisted English/Arabic selection)
 
 ## Goal
 
@@ -69,6 +78,12 @@ Inputs:
 Inputs:
 
 - OTP Code
+
+### Language Selection
+
+- Select English or Arabic on the sign-in screen before authentication.
+- Save the choice on the device and restore it at app startup.
+- Localize the resident app and use right-to-left layout when Arabic is selected.
 
 ### Authentication Flow
 
@@ -94,6 +109,7 @@ The planned API endpoints and database-backed resident lookup remain future back
 - Valid resident details progress to OTP verification; invalid details show an error.
 - A valid mock OTP loads the resident profile and opens the dashboard.
 - A saved local session is restored on app startup and can be cleared by signing out.
+- English and Arabic can be selected before login; the choice persists across app restarts and Arabic uses RTL layout.
 - Widget tests and `flutter analyze` pass.
 
 ---
@@ -151,6 +167,15 @@ Paid Services
 - Installation
 - Home Services
 - Electrical Upgrade
+
+Additional Services (list entries only; details, pricing, and request flows are future scope)
+
+- Housemaid
+- Babysitter
+- Proxy Driver
+- Deep Cleaning
+
+All apartment-related services must appear in the category list. Selecting an additional service shows it in the list only; no extra detail screens are built yet.
 
 ### Complaint Form
 
@@ -300,8 +325,89 @@ Display
 
 ---
 
+# Stage 7A
+# Resident Profile and Case Workflow Mock Screens
+
+Status: **Done** (mock data only; no backend)
+
+## Goal
+
+Add mock resident-facing screens for the profile and for case workflow visibility. Data is static or locally seeded and must be clearly identified as sample data.
+
+## 1. Resident Profile Screen
+
+Sections:
+
+### Tenant Details
+
+- Full name
+- Phone number
+- Email
+- Emirates ID (masked)
+
+### Apartment Details
+
+- Apartment number
+- Tower number
+- Floor
+- Mock Dubai address (e.g., Tower 3, Dubai Marina, Dubai, UAE)
+
+### Tenancy Details
+
+- Tenancy start and end dates
+- Annual rent and payment frequency
+- Security deposit
+- Tenancy status
+
+### Contract Details
+
+- Contract number
+- Landlord / property manager
+- Contract issue and expiry dates
+- Renewal status
+
+## 2. Case Workflow and Status
+
+Once a complaint is raised, the tenant can open the case and view:
+
+- Workflow timeline and current case status
+- Technician details if assigned (name, specialty, phone, photo placeholder)
+- Appointment date and time if scheduled
+
+### Closed Case Mock Data
+
+Each closed case shows:
+
+- Raised date
+- Approved by (manager name)
+- Technician assigned and technician name
+- Appointment date/time
+- Fix date
+- Closing comments
+
+Provide at least two mock closed cases in different categories.
+
+## Architecture
+
+- Mock repositories under each feature's data layer behind domain interfaces, exposed through Riverpod providers, so they can be replaced by a real backend later.
+- Reusable Material 3 widgets for info sections and timeline steps.
+- English and Arabic strings for every label, with RTL support.
+- Routes registered in GoRouter; the dashboard Profile action opens the profile screen.
+
+## Definition Of Done
+
+- Profile screen shows tenant, apartment, tenancy, and contract sections with mock Dubai data.
+- Case detail shows workflow, status, and technician details when assigned.
+- Closed cases show all fields listed above.
+- Mock data is labeled as sample data.
+- Widget tests and `flutter analyze` pass.
+
+---
+
 # Stage 8
 # Move-Out Module
+
+Status: **Done** (local submission and status display; reviewer-driven status changes need a backend)
 
 ## Goal
 
@@ -336,6 +442,10 @@ GET /api/moveout/{id}
 
 - User submits move-out request
 - User tracks progress
+
+---
+
+# PHASE 2: Operations, Notifications, and Deployment (Stages 9-12)
 
 ---
 
@@ -470,15 +580,14 @@ Monitoring
 
 # Future Enhancements
 
-Phase 2
+Later Phase A
 
 - Online Payments
 - Vendor Marketplace
-- Multi-Language Support
 - AI Complaint Classification
 - Chat Support
 
-Phase 3
+Later Phase B
 
 - ERP Integration
 - CRM Integration
