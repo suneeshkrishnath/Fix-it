@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
+import '../../../../l10n/app_localizations_extension.dart';
+import '../../../../l10n/service_localization.dart';
 import '../../domain/models/service_catalog.dart';
 import '../../domain/models/service_request.dart';
 import '../providers/service_request_providers.dart';
@@ -80,8 +82,9 @@ class _CreateServiceRequestScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Create service request')),
+      appBar: AppBar(title: Text(l10n.createServiceRequest)),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -91,14 +94,14 @@ class _CreateServiceRequestScreenState
               DropdownButtonFormField<String>(
                 key: const Key('request-category'),
                 initialValue: _category,
-                decoration: const InputDecoration(
-                  labelText: 'Service category',
+                decoration: InputDecoration(
+                  labelText: l10n.serviceCategory,
                   border: OutlineInputBorder(),
                 ),
                 items: allServiceGroups
                     .map((group) => DropdownMenuItem(
                           value: group.name,
-                          child: Text(group.name),
+                          child: Text(localizedServiceCategory(l10n, group.name)),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -113,14 +116,14 @@ class _CreateServiceRequestScreenState
               DropdownButtonFormField<String>(
                 key: const Key('request-subcategory'),
                 initialValue: _subcategory,
-                decoration: const InputDecoration(
-                  labelText: 'Service type',
+                decoration: InputDecoration(
+                  labelText: l10n.serviceType,
                   border: OutlineInputBorder(),
                 ),
                 items: _selectedGroup.services
                     .map((service) => DropdownMenuItem(
                           value: service,
-                          child: Text(service),
+                          child: Text(localizedServiceType(l10n, service)),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -134,27 +137,27 @@ class _CreateServiceRequestScreenState
                 minLines: 3,
                 maxLines: 6,
                 maxLength: 1000,
-                decoration: const InputDecoration(
-                  labelText: 'Describe the issue',
+                decoration: InputDecoration(
+                  labelText: l10n.describeIssue,
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) => value == null || value.trim().isEmpty
-                    ? 'Add a description of the issue.'
+                    ? l10n.descriptionRequired
                     : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<ServicePriority>(
                 key: const Key('request-priority'),
                 initialValue: _priority,
-                decoration: const InputDecoration(
-                  labelText: 'Priority',
+                decoration: InputDecoration(
+                  labelText: l10n.priority,
                   border: OutlineInputBorder(),
                 ),
                 items: ServicePriority.values
                     .map((priority) => DropdownMenuItem(
                           value: priority,
-                          child: Text(_priorityLabel(priority)),
+                          child: Text(localizedPriority(l10n, priority.name)),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -167,8 +170,12 @@ class _CreateServiceRequestScreenState
                 icon: const Icon(Icons.calendar_month_outlined),
                 label: Text(
                   _preferredVisitAt == null
-                      ? 'Choose preferred visit time (optional)'
-                      : 'Preferred: ${MaterialLocalizations.of(context).formatMediumDate(_preferredVisitAt!)} ${TimeOfDay.fromDateTime(_preferredVisitAt!).format(context)}',
+                      ? l10n.choosePreferredVisit
+                      : l10n.preferredVisit(
+                          MaterialLocalizations.of(context)
+                              .formatMediumDate(_preferredVisitAt!),
+                          TimeOfDay.fromDateTime(_preferredVisitAt!).format(context),
+                        ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -176,7 +183,7 @@ class _CreateServiceRequestScreenState
                 onPressed: _isSubmitting ? null : _submit,
                 child: _isSubmitting
                     ? const CircularProgressIndicator()
-                    : const Text('Submit request'),
+                    : Text(l10n.submitRequest),
               ),
             ],
           ),
@@ -185,11 +192,6 @@ class _CreateServiceRequestScreenState
     );
   }
 
-  String _priorityLabel(ServicePriority priority) => switch (priority) {
-        ServicePriority.low => 'Low',
-        ServicePriority.normal => 'Normal',
-        ServicePriority.high => 'High',
-      };
 }
 
 class RequestSubmittedScreen extends StatelessWidget {
@@ -199,8 +201,9 @@ class RequestSubmittedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Request submitted')),
+      appBar: AppBar(title: Text(l10n.requestSubmitted)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -214,16 +217,18 @@ class RequestSubmittedScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Request ${request.requestNumber} submitted',
+                l10n.requestNumberSubmitted(request.requestNumber),
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Text('${request.category} · ${request.subcategory}'),
+              Text(
+                '${localizedServiceCategory(l10n, request.category)} · ${localizedServiceType(l10n, request.subcategory)}',
+              ),
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: () => context.go(AppRoutes.dashboard),
-                child: const Text('Return to dashboard'),
+                child: Text(l10n.returnToDashboard),
               ),
             ],
           ),

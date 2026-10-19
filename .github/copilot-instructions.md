@@ -17,6 +17,7 @@ The planning documents contain a React Native and Spring Boot proposal. These ar
 
 - Use Flutter and Dart; target Android only unless the user expands platform support.
 - Build resident-facing flows such as OTP login, resident profile, service requests with photos, request tracking/history, and move-out requests as directed by the current task.
+- Provide English and Arabic throughout the resident app, with language selection before login, a saved device preference, and right-to-left layout for Arabic.
 - Use Riverpod, GoRouter, Dio, Hive, and Freezed where their corresponding functionality is needed and consistent with existing code.
 - Follow Clean Architecture; keep UI code separate from business logic and data access.
 - Use Material 3 and reusable widgets.

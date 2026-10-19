@@ -390,6 +390,15 @@ Submitted
 
 ---
 
+# Language Support
+
+- Let residents choose English or Arabic on the sign-in screen before authentication.
+- Apply the selected language throughout the resident app and remember it on the device.
+- Use right-to-left layout when Arabic is selected.
+- Keep English as the default for new installations.
+
+---
+
 # Non-Functional Requirements
 
 ## Performance
@@ -428,6 +437,6 @@ Submitted
 
 Planned product scope includes resident authentication and service workflows, technician assignment/workflows in the shared phone app, administrator property/account/request management in the tablet app, and move-out tracking. Photo attachments remain deferred pending approval of selection and storage behavior.
 
-The current repository is an Android Flutter prototype with mock resident OTP authentication, local service request creation/tracking/history, and a local mock technician role with sample assignments and job actions. Profile and Move-out are dashboard placeholders. The administrator tablet app, shared backend, live synchronization, and photo upload are not implemented. Technician sign-in accepts the demo ID `TECH-001` only and is not production authentication. Appointment proposals remain pending because administrator approval is not available.
+The current repository is an Android Flutter prototype with mock resident OTP authentication, local service request creation/tracking/history, a mock profile, local move-out submission/tracking, and a local mock technician role with sample assignments and job actions. The administrator tablet app, shared backend, live synchronization, and photo upload are not implemented. Technician sign-in accepts the demo ID `TECH-001` only and is not production authentication. Appointment proposals remain pending because administrator approval is not available. Resident-facing labels support English and Arabic, selected before sign-in; Arabic uses right-to-left layout.
 
 Future enhancements include online payments, chat, AI classification, a vendor marketplace, and ERP integration.

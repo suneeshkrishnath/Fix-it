@@ -21,7 +21,7 @@ The product plan describes these intended resident workflows:
 - Submit and track move-out requests
 - Technician demo sign-in, assigned sample jobs, local progress updates, and work history
 
-The plan excludes online payments, chat, AI categorization, a vendor marketplace, and multilingual support from the MVP. The technician role shares the phone app; the administrator module is a separate tablet app and remains on hold.
+The plan excludes online payments, chat, AI categorization, and a vendor marketplace from the MVP. English and Arabic are supported in the resident prototype, with language selection before login and right-to-left layout for Arabic. The technician role shares the phone app; the administrator module is a separate tablet app and remains on hold.
 
 ## Source Documents and Conflicts
 
