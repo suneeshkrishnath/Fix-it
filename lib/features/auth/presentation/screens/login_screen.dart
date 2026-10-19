@@ -26,7 +26,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _requestCode() async {
     if (!_formKey.currentState!.validate()) return;
-    final accepted = await ref.read(authControllerProvider.notifier).requestOtp(
+    final accepted = await ref
+        .read(authControllerProvider.notifier)
+        .requestOtp(
           phoneNumber: _phoneController.text,
           apartmentNumber: _apartmentController.text,
         );
@@ -65,7 +67,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         labelText: 'Phone number',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value == null || value.trim().isEmpty
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
                           ? 'Enter your phone number.'
                           : null,
                     ),
@@ -78,7 +81,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         labelText: 'Apartment number',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value == null || value.trim().isEmpty
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
                           ? 'Enter your apartment number.'
                           : null,
                     ),
@@ -86,7 +90,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 12),
                       Text(
                         error,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 24),
@@ -100,6 +106,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Text(
                       'Prototype resident: +48 500000000, apartment A-302',
                       style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    TextButton(
+                      onPressed: () => context.push('/technician/login'),
+                      child: const Text('Technician sign in'),
                     ),
                   ],
                 ),

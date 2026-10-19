@@ -11,8 +11,8 @@ final serviceRequestRepositoryProvider = Provider<ServiceRequestRepository>(
 
 final serviceRequestsProvider =
     AsyncNotifierProvider<ServiceRequestsController, List<ServiceRequest>>(
-  ServiceRequestsController.new,
-);
+      ServiceRequestsController.new,
+    );
 
 class ServiceRequestsController extends AsyncNotifier<List<ServiceRequest>> {
   ServiceRequestRepository get _repository =>
@@ -39,5 +39,10 @@ class ServiceRequestsController extends AsyncNotifier<List<ServiceRequest>> {
     );
     state = AsyncData(await _repository.listRequests());
     return request;
+  }
+
+  Future<void> updateRequest(ServiceRequest request) async {
+    await _repository.updateRequest(request);
+    state = AsyncData(await _repository.listRequests());
   }
 }

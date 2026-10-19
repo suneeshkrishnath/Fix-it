@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
+import '../../../technician/presentation/providers/technician_providers.dart';
 import '../providers/auth_providers.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
@@ -25,7 +26,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     final verified = await ref
         .read(authControllerProvider.notifier)
         .verifyOtp(_codeController.text.trim());
-    if (verified && mounted) context.go(AppRoutes.dashboard);
+    if (verified && mounted) {
+      await ref.read(technicianSessionProvider.notifier).signOut();
+      if (mounted) context.go(AppRoutes.dashboard);
+    }
   }
 
   @override
@@ -65,7 +69,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   if (authState.error case final error?) ...[
                     Text(
                       error,
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 16),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import '../core/theme/app_theme.dart';
 import '../features/auth/presentation/providers/auth_providers.dart';
+import '../features/technician/presentation/providers/technician_providers.dart';
 
 class FixItApp extends ConsumerStatefulWidget {
   const FixItApp({super.key});
@@ -15,6 +16,7 @@ class FixItApp extends ConsumerStatefulWidget {
 class _FixItAppState extends ConsumerState<FixItApp> {
   late final _router = buildAppRouter(
     isAuthenticated: ref.read(authControllerProvider).resident != null,
+    isTechnicianAuthenticated: ref.read(technicianSessionProvider) != null,
   );
 
   @override

@@ -9,6 +9,10 @@ import 'package:fix_it/features/auth/presentation/providers/auth_providers.dart'
 import 'package:fix_it/features/requests/domain/models/service_request.dart';
 import 'package:fix_it/features/requests/domain/repositories/service_request_repository.dart';
 import 'package:fix_it/features/requests/presentation/providers/service_request_providers.dart';
+import 'package:fix_it/features/technician/domain/repositories/technician_session_repository.dart';
+import 'package:fix_it/features/technician/data/repositories/mock_technician_assignment_repository.dart';
+import 'package:fix_it/features/technician/domain/repositories/technician_assignment_repository.dart';
+import 'package:fix_it/features/technician/presentation/providers/technician_providers.dart';
 
 void main() {
   testWidgets('resident can request and verify a mock OTP', (tester) async {
@@ -20,7 +24,10 @@ void main() {
       ),
     );
 
-    await tester.enterText(find.byKey(const Key('phone-field')), '+48 500000000');
+    await tester.enterText(
+      find.byKey(const Key('phone-field')),
+      '+48 500000000',
+    );
     await tester.enterText(find.byKey(const Key('apartment-field')), 'A-302');
     await tester.tap(find.text('Send verification code'));
     await tester.pumpAndSettle();
@@ -45,12 +52,179 @@ void main() {
       ),
     );
 
-    await tester.enterText(find.byKey(const Key('phone-field')), '+48 111111111');
+    await tester.enterText(
+      find.byKey(const Key('phone-field')),
+      '+48 111111111',
+    );
     await tester.enterText(find.byKey(const Key('apartment-field')), 'B-404');
     await tester.tap(find.text('Send verification code'));
     await tester.pumpAndSettle();
 
     expect(find.text('Resident details were not recognized.'), findsOneWidget);
+  });
+
+  testWidgets('technician can sign in and review assigned jobs and history', (
+    tester,
+  ) async {
+    final requestRepository = _FakeServiceRequestRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+          serviceRequestRepositoryProvider.overrideWithValue(requestRepository),
+          technicianSessionRepositoryProvider.overrideWithValue(
+            _FakeTechnicianSessionRepository(),
+          ),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Technician sign in'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('technician-id-field')),
+      'TECH-001',
+    );
+    await tester.tap(find.byKey(const Key('technician-sign-in')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Technician jobs'), findsOneWidget);
+    expect(find.textContaining('Water leakage'), findsOneWidget);
+    await tester.tap(find.text('Work history'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Switch maintenance'), findsOneWidget);
+    expect(
+      requestRepository.requests.where((item) => item.isSample),
+      hasLength(2),
+    );
+  });
+
+  test(
+    'appointment proposal applies only after tenant and admin approve',
+    () async {
+      final originalAppointment = DateTime(2026, 10, 20, 10);
+      final proposedAppointment = DateTime(2026, 10, 22, 14);
+      final requestRepository = _FakeServiceRequestRepository()
+        ..requests.add(
+          ServiceRequest(
+            id: 'assigned-1',
+            requestNumber: 'FX-ASSIGNED-1',
+            category: 'Plumbing',
+            subcategory: 'Water leakage',
+            description: 'Repair a leak.',
+            priority: ServicePriority.normal,
+            createdAt: DateTime(2026, 10, 18),
+            status: ServiceRequestStatus.appointmentScheduled,
+            assignedTechnicianId: 'TECH-001',
+            appointmentAt: originalAppointment,
+          ),
+        );
+      final assignments = MockTechnicianAssignmentRepository(requestRepository);
+
+      await assignments.proposeAppointmentChange(
+        'assigned-1',
+        proposedAppointment,
+      );
+      await assignments.recordAppointmentDecision(
+        requestId: 'assigned-1',
+        decision: AppointmentProposalDecision.approve,
+        byAdministrator: false,
+      );
+      expect(
+        requestRepository.requests.single.appointmentAt,
+        originalAppointment,
+      );
+      expect(
+        requestRepository.requests.single.tenantApprovedAppointmentChange,
+        isTrue,
+      );
+      expect(
+        requestRepository.requests.single.adminApprovedAppointmentChange,
+        isFalse,
+      );
+
+      await assignments.recordAppointmentDecision(
+        requestId: 'assigned-1',
+        decision: AppointmentProposalDecision.approve,
+        byAdministrator: true,
+      );
+      expect(
+        requestRepository.requests.single.appointmentAt,
+        proposedAppointment,
+      );
+      expect(requestRepository.requests.single.proposedAppointmentAt, isNull);
+    },
+  );
+
+  testWidgets('tenant closes technician-completed work and can reopen it', (
+    tester,
+  ) async {
+    final requestRepository = _FakeServiceRequestRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+          serviceRequestRepositoryProvider.overrideWithValue(requestRepository),
+          technicianSessionRepositoryProvider.overrideWithValue(
+            _FakeTechnicianSessionRepository(),
+          ),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await _signInAsTechnician(tester);
+    await tester.tap(find.byKey(const Key('technician-job-request-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('accept-assignment')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('start-work')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('complete-work')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('completion-comments-field')),
+      'Repaired and tested.',
+    );
+    await tester.tap(find.byKey(const Key('confirm-completion')));
+    await tester.pumpAndSettle();
+
+    final completed = requestRepository.requests.first;
+    expect(completed.status, ServiceRequestStatus.awaitingTenantConfirmation);
+    expect(completed.closedAt, isNull);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Sign out'));
+    await tester.pumpAndSettle();
+    await _signInAsResident(tester);
+    await tester.tap(find.byKey(const Key('my-requests-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('request-request-1')));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).last, const Offset(0, -320));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('tenant-close-request')));
+    await tester.pumpAndSettle();
+    expect(
+      requestRepository.requests.first.status,
+      ServiceRequestStatus.closed,
+    );
+    expect(requestRepository.requests.first.closedAt, isNotNull);
+    await tester.drag(find.byType(ListView).last, const Offset(0, -500));
+    await tester.pumpAndSettle();
+    expect(find.text('Closed by tenant'), findsOneWidget);
+    expect(find.text('The 24-hour reopen window has expired.'), findsNothing);
+    expect(find.byKey(const Key('tenant-reopen-request')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('tenant-reopen-request')));
+    await tester.pumpAndSettle();
+    expect(
+      requestRepository.requests.first.status,
+      ServiceRequestStatus.reopened,
+    );
   });
 
   testWidgets('saved resident opens the dashboard', (tester) async {
@@ -73,8 +247,9 @@ void main() {
     expect(find.text('Apartment A-302'), findsOneWidget);
   });
 
-  testWidgets('resident dashboard actions open their destinations',
-      (tester) async {
+  testWidgets('resident dashboard actions open their destinations', (
+    tester,
+  ) async {
     final repository = _FakeAuthRepository()
       ..resident = const Resident(
         name: 'Anna Kowalska',
@@ -111,10 +286,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
-            ..resident = _demoResident),
-          serviceRequestRepositoryProvider
-              .overrideWithValue(_FakeServiceRequestRepository()),
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository()..resident = _demoResident,
+          ),
+          serviceRequestRepositoryProvider.overrideWithValue(
+            _FakeServiceRequestRepository(),
+          ),
         ],
         child: const FixItApp(),
       ),
@@ -134,10 +311,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
-            ..resident = _demoResident),
-          serviceRequestRepositoryProvider
-              .overrideWithValue(requestRepository),
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository()..resident = _demoResident,
+          ),
+          serviceRequestRepositoryProvider.overrideWithValue(requestRepository),
         ],
         child: const FixItApp(),
       ),
@@ -156,12 +333,15 @@ void main() {
     expect(find.text('Request FX-000001 submitted'), findsOneWidget);
     expect(requestRepository.requests, hasLength(1));
     expect(requestRepository.requests.single.category, 'Plumbing');
-    expect(requestRepository.requests.single.description,
-        'Water is leaking under the kitchen sink.');
+    expect(
+      requestRepository.requests.single.description,
+      'Water is leaking under the kitchen sink.',
+    );
   });
 
-  testWidgets('request details display the saved status timeline',
-      (tester) async {
+  testWidgets('request details display the saved status timeline', (
+    tester,
+  ) async {
     final request = ServiceRequest(
       id: 'request-1',
       requestNumber: 'FX-000001',
@@ -178,10 +358,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
-            ..resident = _demoResident),
-          serviceRequestRepositoryProvider
-              .overrideWithValue(requestRepository),
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository()..resident = _demoResident,
+          ),
+          serviceRequestRepositoryProvider.overrideWithValue(requestRepository),
         ],
         child: const FixItApp(),
       ),
@@ -202,8 +382,9 @@ void main() {
     expect(find.text('Completed'), findsNothing);
   });
 
-  testWidgets('history filters requests and displays recorded cost',
-      (tester) async {
+  testWidgets('history filters requests and displays recorded cost', (
+    tester,
+  ) async {
     final requestRepository = _FakeServiceRequestRepository()
       ..requests.addAll([
         ServiceRequest(
@@ -242,10 +423,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()
-            ..resident = _demoResident),
-          serviceRequestRepositoryProvider
-              .overrideWithValue(requestRepository),
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository()..resident = _demoResident,
+          ),
+          serviceRequestRepositoryProvider.overrideWithValue(requestRepository),
         ],
         child: const FixItApp(),
       ),
@@ -282,6 +463,46 @@ const _demoResident = Resident(
   apartmentNumber: 'A-302',
 );
 
+Future<void> _signInAsTechnician(WidgetTester tester) async {
+  await tester.tap(find.text('Technician sign in'));
+  await tester.pumpAndSettle();
+  await tester.enterText(
+    find.byKey(const Key('technician-id-field')),
+    'TECH-001',
+  );
+  await tester.tap(find.byKey(const Key('technician-sign-in')));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _signInAsResident(WidgetTester tester) async {
+  await tester.enterText(find.byKey(const Key('phone-field')), '+48 500000000');
+  await tester.enterText(find.byKey(const Key('apartment-field')), 'A-302');
+  await tester.tap(find.text('Send verification code'));
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byKey(const Key('otp-field')), '123456');
+  await tester.tap(find.text('Verify and continue'));
+  await tester.pumpAndSettle();
+}
+
+class _FakeTechnicianSessionRepository implements TechnicianSessionRepository {
+  String? technicianId;
+
+  @override
+  String? readTechnicianId() => technicianId;
+
+  @override
+  Future<bool> signIn(String technicianId) async {
+    if (technicianId != 'TECH-001') return false;
+    this.technicianId = technicianId;
+    return true;
+  }
+
+  @override
+  Future<void> signOut() async {
+    technicianId = null;
+  }
+}
+
 class _FakeAuthRepository implements AuthRepository {
   Resident? resident;
   bool _otpRequested = false;
@@ -294,7 +515,8 @@ class _FakeAuthRepository implements AuthRepository {
     required String phoneNumber,
     required String apartmentNumber,
   }) async {
-    _otpRequested = phoneNumber.replaceAll(' ', '') == '+48500000000' &&
+    _otpRequested =
+        phoneNumber.replaceAll(' ', '') == '+48500000000' &&
         apartmentNumber.trim().toUpperCase() == 'A-302';
     return _otpRequested;
   }
@@ -319,6 +541,7 @@ class _FakeAuthRepository implements AuthRepository {
 
 class _FakeServiceRequestRepository implements ServiceRequestRepository {
   final requests = <ServiceRequest>[];
+  var _nextRequest = 0;
 
   @override
   Future<List<ServiceRequest>> listRequests() async => requests;
@@ -332,9 +555,11 @@ class _FakeServiceRequestRepository implements ServiceRequestRepository {
     DateTime? preferredVisitAt,
     List<String> attachmentPaths = const [],
   }) async {
+    _nextRequest++;
+    final id = 'request-$_nextRequest';
     final request = ServiceRequest(
-      id: 'request-1',
-      requestNumber: 'FX-000001',
+      id: id,
+      requestNumber: 'FX-${_nextRequest.toString().padLeft(6, '0')}',
       category: category,
       subcategory: subcategory,
       description: description,
@@ -348,5 +573,12 @@ class _FakeServiceRequestRepository implements ServiceRequestRepository {
   }
 
   @override
-  Future<void> updateRequest(ServiceRequest request) async {}
+  Future<void> updateRequest(ServiceRequest request) async {
+    final index = requests.indexWhere((item) => item.id == request.id);
+    if (index < 0) {
+      requests.add(request);
+    } else {
+      requests[index] = request;
+    }
+  }
 }

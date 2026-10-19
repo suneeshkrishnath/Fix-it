@@ -8,9 +8,9 @@ This file defines how AI coding assistants should work in this repository.
 
 **Project:** Fix-it, an Apartment Service Management System (ASMS)
 
-**Product:** A Flutter mobile application for apartment residents to submit and follow up on maintenance and service requests.
+**Product:** An Android Flutter phone app for residents and technicians, plus a planned separate administrator tablet app.
 
-**Current status:** Prototype. Android is the only supported platform. Do not describe planned functionality as already implemented.
+**Current status:** Resident prototype with a local mock technician workflow. Android is the only supported platform. The administrator tablet app and shared backend are not implemented. Do not describe mock functionality as production-ready.
 
 The product plan describes these intended resident workflows:
 
@@ -19,8 +19,9 @@ The product plan describes these intended resident workflows:
 - Create service requests, add details, and attach photos
 - Track request status and view service history
 - Submit and track move-out requests
+- Technician demo sign-in, assigned sample jobs, local progress updates, and work history
 
-The plan excludes online payments, chat, AI categorization, a vendor marketplace, and multilingual support from the MVP. Technician and administrator workflows are not part of the resident mobile app unless the user explicitly expands its scope.
+The plan excludes online payments, chat, AI categorization, a vendor marketplace, and multilingual support from the MVP. The technician role shares the phone app; the administrator module is a separate tablet app and remains on hold.
 
 ## Source Documents and Conflicts
 
@@ -51,7 +52,7 @@ Preserve the repository's existing structure and conventions. For new feature co
 
 ## Prototype and Product Scope
 
-- Implement only the resident-facing flows needed for the current task.
+- Implement resident flows and the explicitly requested technician phone-app role; keep administrator tablet/backend work on hold unless requested.
 - Prefer simple, testable mock data where a real service is not available; make mock behavior clear in code and UI where relevant.
 - Do not claim authentication, uploads, push notifications, or server synchronization are production-ready unless they are actually implemented.
 - Do not add iOS support, production backend integration, payment processing, or unplanned product features without explicit direction.

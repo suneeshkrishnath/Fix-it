@@ -63,15 +63,16 @@ class _ServiceHistoryScreenState extends ConsumerState<ServiceHistoryScreen> {
           ),
         ),
         data: (items) {
-          final filtered = filterServiceRequests(
-            items,
-            category: _category,
-            status: _status,
-            startDate: _dateRange?.start,
-            endDate: _dateRange?.end,
-          )
-            ..sort((first, second) =>
-                second.createdAt.compareTo(first.createdAt));
+          final filtered =
+              filterServiceRequests(
+                items,
+                category: _category,
+                status: _status,
+                startDate: _dateRange?.start,
+                endDate: _dateRange?.end,
+              )..sort(
+                (first, second) => second.createdAt.compareTo(first.createdAt),
+              );
           return Column(
             children: [
               Padding(
@@ -168,7 +169,6 @@ class _ServiceHistoryScreenState extends ConsumerState<ServiceHistoryScreen> {
       ),
     );
   }
-
 }
 
 class _HistoryTile extends StatelessWidget {
@@ -194,15 +194,19 @@ class _HistoryTile extends StatelessWidget {
 }
 
 String _statusLabel(ServiceRequestStatus status) => switch (status) {
-      ServiceRequestStatus.submitted => 'Submitted',
-      ServiceRequestStatus.accepted => 'Accepted',
-      ServiceRequestStatus.assigned => 'Assigned',
-      ServiceRequestStatus.appointmentScheduled => 'Appointment scheduled',
-      ServiceRequestStatus.inProgress => 'In progress',
-      ServiceRequestStatus.completed => 'Completed',
-      ServiceRequestStatus.rejected => 'Rejected',
-      ServiceRequestStatus.cancelled => 'Cancelled',
-    };
+  ServiceRequestStatus.submitted => 'Submitted',
+  ServiceRequestStatus.accepted => 'Accepted',
+  ServiceRequestStatus.assigned => 'Assigned',
+  ServiceRequestStatus.appointmentScheduled => 'Appointment scheduled',
+  ServiceRequestStatus.inProgress => 'In progress',
+  ServiceRequestStatus.completed => 'Completed',
+  ServiceRequestStatus.awaitingTenantConfirmation =>
+    'Awaiting tenant confirmation',
+  ServiceRequestStatus.closed => 'Closed by tenant',
+  ServiceRequestStatus.reopened => 'Reopened',
+  ServiceRequestStatus.rejected => 'Rejected',
+  ServiceRequestStatus.cancelled => 'Cancelled',
+};
 
 String _costLabel(double? cost) =>
     cost == null ? 'Cost not recorded' : 'Cost: ${cost.toStringAsFixed(2)}';

@@ -41,9 +41,8 @@ class MyRequestsScreen extends ConsumerWidget {
                     '${request.subcategory} · ${_statusLabel(request.status)}',
                   ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.push(
-                    AppRoutes.requestDetails(request.id),
-                  ),
+                  onTap: () =>
+                      context.push(AppRoutes.requestDetails(request.id)),
                 );
               },
             ),
@@ -55,12 +54,16 @@ class MyRequestsScreen extends ConsumerWidget {
 }
 
 String _statusLabel(ServiceRequestStatus status) => switch (status) {
-      ServiceRequestStatus.submitted => 'Submitted',
-      ServiceRequestStatus.accepted => 'Accepted',
-      ServiceRequestStatus.assigned => 'Assigned',
-      ServiceRequestStatus.appointmentScheduled => 'Appointment scheduled',
-      ServiceRequestStatus.inProgress => 'In progress',
-      ServiceRequestStatus.completed => 'Completed',
-      ServiceRequestStatus.rejected => 'Rejected',
-      ServiceRequestStatus.cancelled => 'Cancelled',
-    };
+  ServiceRequestStatus.submitted => 'Submitted',
+  ServiceRequestStatus.accepted => 'Accepted',
+  ServiceRequestStatus.assigned => 'Assigned',
+  ServiceRequestStatus.appointmentScheduled => 'Appointment scheduled',
+  ServiceRequestStatus.inProgress => 'In progress',
+  ServiceRequestStatus.completed => 'Completed',
+  ServiceRequestStatus.awaitingTenantConfirmation =>
+    'Awaiting tenant confirmation',
+  ServiceRequestStatus.closed => 'Closed by tenant',
+  ServiceRequestStatus.reopened => 'Reopened',
+  ServiceRequestStatus.rejected => 'Rejected',
+  ServiceRequestStatus.cancelled => 'Cancelled',
+};
