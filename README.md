@@ -75,14 +75,16 @@ To build, install, and launch in one step, use `flutter run -d <device-id>`.
 
 ## Resident App Walkthrough
 
-1. On the sign-in screen, enter the demo phone number `+48 500000000` and apartment `A-302`.
-2. Enter the mock verification code `123456`.
-3. From the dashboard, choose **Create service request**. Select a category and service type, enter a description, set priority, optionally choose a preferred visit time, and submit. The confirmation screen displays the request number.
-4. Open **My requests** to select a request and view its saved status timeline and details.
-5. Open **Service history** to review requests and filter by category, status, or date range. Clear filters using the filter-clear action.
-6. Use **Sign out** in the dashboard app bar to clear the saved mock session.
+1. Choose English or Arabic on the sign-in screen. The language preference is saved on the device; Arabic uses right-to-left layout.
+2. Enter the demo phone number `+48 500000000` and apartment `A-302`.
+3. Enter the mock verification code `123456`.
+4. From the dashboard, choose **Create service request**. Select a category and service type, enter a description, set priority, optionally choose a preferred visit time, and submit. The confirmation screen displays the request number.
+5. Open **My requests** to select a request and view its saved status timeline and details.
+6. Open **Service history** to review requests and filter by category, status, or date range. Clear filters using the filter-clear action.
+7. **Resident profile** displays mock tenant, apartment, tenancy, and contract details. **Move-out request** accepts a local request and shows its saved workflow status.
+8. Use **Sign out** in the dashboard app bar to clear the saved mock session.
 
-The current request categories are Plumbing, Electrical, Maintenance, Cleaning, Installation, Home Services, and Electrical Upgrade. The dashboard's Resident profile and Move-out request destinations currently show planned-feature placeholders.
+The current request categories are Plumbing, Electrical, Maintenance, Cleaning, Installation, Home Services, and Electrical Upgrade.
 
 ## Technician App Walkthrough
 
@@ -99,7 +101,7 @@ Sample technician assignments are stored alongside resident requests on the devi
 
 - Resident authentication accepts only the demo credentials above. Technician prototype sign-in accepts `TECH-001` by ID only. Both sessions and requests are stored locally with Hive.
 - Technician status updates, tenant appointment decisions, request closure, and reopening are local prototype behavior. There is no backend synchronization or administrator app; an appointment proposal remains pending until both tenant and administrator approval exist.
-- Photo attachments, the administrator tablet app, production authentication, push notifications, online payments, and backend integrations are not implemented.
+- Photo attachments, the administrator tablet app, production authentication, push notifications, online payments, and backend integrations are not implemented. Profile and move-out data are mock/local; move-out status is not updated by an administrator.
 - Reinstalling or clearing app data may remove locally stored prototype information.
 
 ## Checks

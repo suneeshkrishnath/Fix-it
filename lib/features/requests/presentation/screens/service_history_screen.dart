@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
+import '../../../../l10n/app_localizations_extension.dart';
+import '../../../../l10n/service_localization.dart';
 import '../../domain/models/service_catalog.dart';
 import '../../domain/models/service_request_filters.dart';
 import '../../domain/models/service_request.dart';
@@ -38,13 +40,14 @@ class _ServiceHistoryScreenState extends ConsumerState<ServiceHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final requests = ref.watch(serviceRequestsProvider);
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Service history'),
+        title: Text(l10n.serviceHistory),
         actions: [
           if (_hasFilters)
             IconButton(
-              tooltip: 'Clear filters',
+              tooltip: l10n.clearFilters,
               onPressed: () => setState(() {
                 _category = null;
                 _status = null;
@@ -59,7 +62,7 @@ class _ServiceHistoryScreenState extends ConsumerState<ServiceHistoryScreen> {
         error: (error, stackTrace) => Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text('Could not load service history: $error'),
+            child: Text(l10n.couldNotLoadHistory(error.toString())),
           ),
         ),
         data: (items) {
@@ -82,20 +85,22 @@ class _ServiceHistoryScreenState extends ConsumerState<ServiceHistoryScreen> {
                     DropdownButtonFormField<String?>(
                       key: const Key('history-category-filter'),
                       initialValue: _category,
-                      decoration: const InputDecoration(
-                        labelText: 'Category',
+                      decoration: InputDecoration(
+                        labelText: l10n.filterCategory,
                         border: OutlineInputBorder(),
                         isDense: true,
                       ),
                       items: [
-                        const DropdownMenuItem<String?>(
+                        DropdownMenuItem<String?>(
                           value: null,
-                          child: Text('All categories'),
+                          child: Text(l10n.allCategories),
                         ),
                         ...allServiceGroups.map(
                           (group) => DropdownMenuItem<String?>(
                             value: group.name,
-                            child: Text(group.name),
+                            child: Text(
+                              localizedServiceCategory(l10n, group.name),
+                            ),
                           ),
                         ),
                       ],
@@ -105,20 +110,20 @@ class _ServiceHistoryScreenState extends ConsumerState<ServiceHistoryScreen> {
                     DropdownButtonFormField<ServiceRequestStatus?>(
                       key: const Key('history-status-filter'),
                       initialValue: _status,
-                      decoration: const InputDecoration(
-                        labelText: 'Status',
+                      decoration: InputDecoration(
+                        labelText: l10n.filterStatus,
                         border: OutlineInputBorder(),
                         isDense: true,
                       ),
                       items: [
-                        const DropdownMenuItem<ServiceRequestStatus?>(
+                        DropdownMenuItem<ServiceRequestStatus?>(
                           value: null,
-                          child: Text('All statuses'),
+                          child: Text(l10n.allStatuses),
                         ),
                         ...ServiceRequestStatus.values.map(
                           (status) => DropdownMenuItem<ServiceRequestStatus?>(
                             value: status,
-                            child: Text(_statusLabel(status)),
+                            child: Text(localizedStatus(l10n, status.name)),
                           ),
                         ),
                       ],
@@ -133,7 +138,7 @@ class _ServiceHistoryScreenState extends ConsumerState<ServiceHistoryScreen> {
                         icon: const Icon(Icons.date_range_outlined),
                         label: Text(
                           _dateRange == null
-                              ? 'Filter by date range'
+                              ? l10n.filterDateRange
                               : '${MaterialLocalizations.of(context).formatMediumDate(_dateRange!.start)} – ${MaterialLocalizations.of(context).formatMediumDate(_dateRange!.end)}',
                         ),
                       ),
@@ -147,8 +152,8 @@ class _ServiceHistoryScreenState extends ConsumerState<ServiceHistoryScreen> {
                     ? Center(
                         child: Text(
                           items.isEmpty
-                              ? 'No service history yet.'
-                              : 'No requests match these filters.',
+                              ? l10n.noServiceHistory
+                              : l10n.noMatchingRequests,
                         ),
                       )
                     : ListView.separated(
@@ -182,9 +187,11 @@ class _HistoryTile extends StatelessWidget {
     final localizations = MaterialLocalizations.of(context);
     return ListTile(
       key: Key('history-${request.id}'),
-      title: Text('${request.requestNumber} · ${request.category}'),
+      title: Text(
+        '${request.requestNumber} · ${localizedServiceCategory(context.l10n, request.category)}',
+      ),
       subtitle: Text(
-        '${request.subcategory} · ${localizations.formatMediumDate(request.createdAt)}\n${_statusLabel(request.status)} · ${_costLabel(request.estimatedCost)}',
+        '${localizedServiceType(context.l10n, request.subcategory)} · ${localizations.formatMediumDate(request.createdAt)}\n${localizedStatus(context.l10n, request.status.name)} · ${_costLabel(context, request.estimatedCost)}',
       ),
       isThreeLine: true,
       trailing: const Icon(Icons.chevron_right),
@@ -193,20 +200,6 @@ class _HistoryTile extends StatelessWidget {
   }
 }
 
-String _statusLabel(ServiceRequestStatus status) => switch (status) {
-  ServiceRequestStatus.submitted => 'Submitted',
-  ServiceRequestStatus.accepted => 'Accepted',
-  ServiceRequestStatus.assigned => 'Assigned',
-  ServiceRequestStatus.appointmentScheduled => 'Appointment scheduled',
-  ServiceRequestStatus.inProgress => 'In progress',
-  ServiceRequestStatus.completed => 'Completed',
-  ServiceRequestStatus.awaitingTenantConfirmation =>
-    'Awaiting tenant confirmation',
-  ServiceRequestStatus.closed => 'Closed by tenant',
-  ServiceRequestStatus.reopened => 'Reopened',
-  ServiceRequestStatus.rejected => 'Rejected',
-  ServiceRequestStatus.cancelled => 'Cancelled',
-};
-
-String _costLabel(double? cost) =>
-    cost == null ? 'Cost not recorded' : 'Cost: ${cost.toStringAsFixed(2)}';
+String _costLabel(BuildContext context, double? cost) => cost == null
+    ? context.l10n.costNotRecorded
+    : context.l10n.recordedCost(cost.toStringAsFixed(2));

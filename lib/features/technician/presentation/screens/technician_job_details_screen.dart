@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../l10n/app_localizations_extension.dart';
+import '../../../../l10n/service_localization.dart';
 import '../../../requests/domain/models/service_request.dart';
 import '../providers/technician_providers.dart';
 
@@ -11,20 +13,21 @@ class TechnicianJobDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final assignments = ref.watch(technicianAssignmentsProvider);
     return assignments.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(title: const Text('Job details')),
-        body: Center(child: Text('Could not load job: $error')),
+        appBar: AppBar(title: Text(l10n.jobDetails)),
+        body: Center(child: Text(l10n.couldNotLoadJob(error.toString()))),
       ),
       data: (items) {
         final matches = items.where((item) => item.id == requestId);
         if (matches.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Job details')),
-            body: const Center(child: Text('Assignment not found.')),
+            appBar: AppBar(title: Text(l10n.jobDetails)),
+            body: Center(child: Text(l10n.assignmentNotFound)),
           );
         }
         return _JobDetails(assignment: matches.first);
@@ -55,31 +58,32 @@ class _JobDetails extends ConsumerWidget {
   }
 
   Future<void> _completeWork(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     var completionComments = '';
     final comments = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Complete work'),
+        title: Text(l10n.completeWork),
         content: TextField(
           key: const Key('completion-comments-field'),
           minLines: 2,
           maxLines: 5,
           onChanged: (value) => completionComments = value,
-          decoration: const InputDecoration(
-            labelText: 'Completion comments',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.closingComments,
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             key: const Key('confirm-completion'),
             onPressed: () =>
                 Navigator.pop(dialogContext, completionComments.trim()),
-            child: const Text('Submit completion'),
+            child: Text(l10n.submitCompletion),
           ),
         ],
       ),
@@ -94,6 +98,7 @@ class _JobDetails extends ConsumerWidget {
   }
 
   Future<void> _proposeAppointment(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final now = DateTime.now();
     final date = await showDatePicker(
       context: context,
@@ -121,18 +126,14 @@ class _JobDetails extends ConsumerWidget {
         .proposeAppointmentChange(assignment.id, proposedAt);
     if (!context.mounted) return;
     ref.invalidate(technicianAssignmentsProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Proposal saved. Tenant and administrator approval are required.',
-        ),
-      ),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(l10n.proposalSaved)));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final assignment = this.assignment;
+    final l10n = context.l10n;
     final localizations = MaterialLocalizations.of(context);
     final isAwaitingTenant =
         assignment.awaitingTenantConfirmation ||
@@ -145,37 +146,35 @@ class _JobDetails extends ConsumerWidget {
         padding: const EdgeInsets.all(20),
         children: [
           if (assignment.isSample)
-            const ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text(
-                'Sample assignment. No real resident or service is affected.',
-              ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(l10n.sampleAssignmentNotice),
             ),
           Text(
-            '${assignment.category} · ${assignment.subcategory}',
+            '${localizedServiceCategory(l10n, assignment.category)} · ${localizedServiceType(l10n, assignment.subcategory)}',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 12),
-          _DetailRow(label: 'Request', value: assignment.description),
+          _DetailRow(label: l10n.request, value: assignment.description),
           _DetailRow(
-            label: 'Location',
-            value: assignment.location ?? 'Location unavailable',
+            label: l10n.address,
+            value: assignment.location ?? l10n.locationUnavailable,
           ),
           _DetailRow(
-            label: 'Scheduled time',
+            label: l10n.scheduledTime,
             value: assignment.appointmentAt == null
-                ? 'Not scheduled'
+                ? l10n.appointmentNotScheduled
                 : _formatDateTime(localizations, assignment.appointmentAt!),
           ),
           _DetailRow(
-            label: 'Status',
+            label: l10n.requestStatus,
             value: isAwaitingTenant
-                ? 'Work completed · awaiting tenant confirmation'
-                : _statusLabel(assignment.status),
+                ? l10n.workCompletedAwaitingTenant
+                : localizedStatus(l10n, assignment.status.name),
           ),
           if (assignment.completionComments != null)
             _DetailRow(
-              label: 'Completion comments',
+              label: l10n.closingComments,
               value: assignment.completionComments!,
             ),
           if (hasProposal) ...[
@@ -187,7 +186,7 @@ class _JobDetails extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Appointment change proposal',
+                      l10n.appointmentChangeProposal,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
@@ -198,28 +197,24 @@ class _JobDetails extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      'Tenant: ${assignment.tenantApprovedAppointmentChange ? 'approved' : 'pending'}',
+                      '${l10n.tenant}: ${assignment.tenantApprovedAppointmentChange ? l10n.approved : l10n.pending}',
                     ),
                     Text(
-                      'Administrator: ${assignment.adminApprovedAppointmentChange ? 'approved' : 'pending'}',
+                      '${l10n.administrator}: ${assignment.adminApprovedAppointmentChange ? l10n.approved : l10n.pending}',
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'The scheduled appointment remains unchanged until both approve.',
-                    ),
+                    Text(l10n.appointmentUnchangedUntilBothApprove),
                   ],
                 ),
               ),
             ),
           ],
           if (isAwaitingTenant)
-            const Card(
+            Card(
               child: ListTile(
-                leading: Icon(Icons.hourglass_top),
-                title: Text('Waiting for tenant confirmation'),
-                subtitle: Text(
-                  'The tenant closes the request after confirming the repair.',
-                ),
+                leading: const Icon(Icons.hourglass_top),
+                title: Text(l10n.statusAwaitingTenantConfirmation),
+                subtitle: Text(l10n.tenantConfirmationClosesRequest),
               ),
             ),
           if (!isAwaitingTenant && !isClosed) ...[
@@ -230,7 +225,7 @@ class _JobDetails extends ConsumerWidget {
                 onPressed: () =>
                     _setStatus(context, ref, ServiceRequestStatus.accepted),
                 icon: const Icon(Icons.check),
-                label: const Text('Accept assignment'),
+                label: Text(l10n.acceptAssignment),
               ),
             if (assignment.status == ServiceRequestStatus.accepted ||
                 assignment.status == ServiceRequestStatus.reopened)
@@ -239,20 +234,20 @@ class _JobDetails extends ConsumerWidget {
                 onPressed: () =>
                     _setStatus(context, ref, ServiceRequestStatus.inProgress),
                 icon: const Icon(Icons.play_arrow),
-                label: const Text('Start work'),
+                label: Text(l10n.startWork),
               ),
             if (assignment.status == ServiceRequestStatus.inProgress) ...[
               OutlinedButton.icon(
                 key: const Key('propose-appointment'),
                 onPressed: () => _proposeAppointment(context, ref),
                 icon: const Icon(Icons.schedule),
-                label: const Text('Propose new time'),
+                label: Text(l10n.proposeNewTime),
               ),
               FilledButton.icon(
                 key: const Key('complete-work'),
                 onPressed: () => _completeWork(context, ref),
                 icon: const Icon(Icons.task_alt),
-                label: const Text('Mark work complete'),
+                label: Text(l10n.markWorkComplete),
               ),
             ],
           ],
@@ -284,18 +279,3 @@ class _DetailRow extends StatelessWidget {
 
 String _formatDateTime(MaterialLocalizations localizations, DateTime value) =>
     '${localizations.formatMediumDate(value)} ${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(value))}';
-
-String _statusLabel(ServiceRequestStatus status) => switch (status) {
-  ServiceRequestStatus.submitted => 'Submitted',
-  ServiceRequestStatus.accepted => 'Accepted',
-  ServiceRequestStatus.assigned => 'Assigned',
-  ServiceRequestStatus.appointmentScheduled => 'Appointment scheduled',
-  ServiceRequestStatus.inProgress => 'In progress',
-  ServiceRequestStatus.completed => 'Completed',
-  ServiceRequestStatus.awaitingTenantConfirmation =>
-    'Awaiting tenant confirmation',
-  ServiceRequestStatus.closed => 'Closed by tenant',
-  ServiceRequestStatus.reopened => 'Reopened',
-  ServiceRequestStatus.rejected => 'Rejected',
-  ServiceRequestStatus.cancelled => 'Cancelled',
-};

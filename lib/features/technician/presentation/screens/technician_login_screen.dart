@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../../l10n/app_localizations_extension.dart';
 import '../providers/technician_providers.dart';
 
 class TechnicianLoginScreen extends ConsumerStatefulWidget {
@@ -38,17 +39,19 @@ class _TechnicianLoginScreenState extends ConsumerState<TechnicianLoginScreen> {
       await ref.read(authControllerProvider.notifier).signOut();
     }
     if (!mounted) return;
+    final l10n = context.l10n;
     setState(() {
       _isSubmitting = false;
-      _error = signedIn ? null : 'Technician ID was not recognized.';
+      _error = signedIn ? null : l10n.technicianIdNotRecognized;
     });
     if (signedIn) context.go('/technician/jobs');
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Technician sign in')),
+      appBar: AppBar(title: Text(l10n.technicianSignIn)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -61,25 +64,23 @@ class _TechnicianLoginScreenState extends ConsumerState<TechnicianLoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Technician workspace',
+                      l10n.technicianWorkspace,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Prototype access uses a technician ID only. This is not secure authentication.',
-                    ),
+                    Text(l10n.technicianPrototypeAuthNotice),
                     const SizedBox(height: 24),
                     TextFormField(
                       key: const Key('technician-id-field'),
                       controller: _technicianIdController,
                       textCapitalization: TextCapitalization.characters,
-                      decoration: const InputDecoration(
-                        labelText: 'Technician login ID',
+                      decoration: InputDecoration(
+                        labelText: l10n.technicianLoginId,
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
-                          ? 'Enter your technician ID.'
+                          ? l10n.enterTechnicianId
                           : null,
                     ),
                     if (_error != null) ...[
@@ -97,16 +98,16 @@ class _TechnicianLoginScreenState extends ConsumerState<TechnicianLoginScreen> {
                       onPressed: _isSubmitting ? null : _signIn,
                       child: _isSubmitting
                           ? const CircularProgressIndicator()
-                          : const Text('Sign in'),
+                          : Text(l10n.signIn),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Demo technician ID: TECH-001',
+                      l10n.demoTechnicianId,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     TextButton(
                       onPressed: () => context.go('/login'),
-                      child: const Text('Resident sign in'),
+                      child: Text(l10n.residentSignIn),
                     ),
                   ],
                 ),

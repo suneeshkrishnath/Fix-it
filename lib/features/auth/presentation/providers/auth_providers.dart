@@ -12,24 +12,34 @@ final authRepositoryProvider = Provider<AuthRepository>(
 final authControllerProvider =
     NotifierProvider<AuthController, AuthState>(AuthController.new);
 
+enum AuthErrorCode {
+  residentNotRecognized,
+  otpRequestFailed,
+  incorrectOtp,
+  otpVerificationFailed,
+}
+
 class AuthState {
   const AuthState({
     this.resident,
     this.awaitingOtp = false,
     this.isLoading = false,
     this.error,
+    this.errorDetail,
   });
 
   final Resident? resident;
   final bool awaitingOtp;
   final bool isLoading;
-  final String? error;
+  final AuthErrorCode? error;
+  final String? errorDetail;
 
   AuthState copyWith({
     Resident? resident,
     bool? awaitingOtp,
     bool? isLoading,
-    String? error,
+    AuthErrorCode? error,
+    String? errorDetail,
     bool clearError = false,
   }) =>
       AuthState(
@@ -37,6 +47,7 @@ class AuthState {
         awaitingOtp: awaitingOtp ?? this.awaitingOtp,
         isLoading: isLoading ?? this.isLoading,
         error: clearError ? null : error ?? this.error,
+        errorDetail: clearError ? null : errorDetail ?? this.errorDetail,
       );
 }
 
@@ -59,13 +70,14 @@ class AuthController extends Notifier<AuthState> {
       state = state.copyWith(
         isLoading: false,
         awaitingOtp: accepted,
-        error: accepted ? null : 'Resident details were not recognized.',
+        error: accepted ? null : AuthErrorCode.residentNotRecognized,
       );
       return accepted;
     } catch (error) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Could not request a verification code: $error',
+        error: AuthErrorCode.otpRequestFailed,
+        errorDetail: error.toString(),
       );
       return false;
     }
@@ -79,13 +91,14 @@ class AuthController extends Notifier<AuthState> {
         resident: resident,
         awaitingOtp: resident == null,
         isLoading: false,
-        error: resident == null ? 'The verification code is incorrect.' : null,
+        error: resident == null ? AuthErrorCode.incorrectOtp : null,
       );
       return resident != null;
     } catch (error) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Could not verify the code: $error',
+        error: AuthErrorCode.otpVerificationFailed,
+        errorDetail: error.toString(),
       );
       return false;
     }
