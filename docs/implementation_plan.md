@@ -16,8 +16,8 @@
 | 7 | Service history | Done | Local history and filters. |
 | 7A | Resident profile and case workflow mocks | Done | Mock tenant/property profile, case timeline, technician details, and closed cases. |
 | 8 | Move-out | Done | Local request submission and status tracking; no backend review updates. |
-| 9 | Shared backend and administrator tablet app | On Hold | Separate Android tablet module; appointment changes need tenant and admin approval; tenant closes/reopens completed requests within 24 hours. |
-| 10 | Technician module in shared phone app | In Progress | Local mock login, assignments, history, and job actions are implemented; backend and admin approval remain pending Stage 9. |
+| 9 | Shared backend and administrator tablet app | On Hold | Separate Android tablet module; admin review/reassignment and approval required before closure; tenant may reopen within 24 hours. |
+| 10 | Technician module in shared phone app | In Progress | Local mock basics are implemented; detailed statuses, notifications, elapsed-time billing/history, and dual-approval completion are Planned. |
 | 11 | Notifications | Planned | Provider to be selected. |
 | 12 | Production deployment | Planned | Phone app, tablet app, and shared backend. |
 
@@ -483,7 +483,11 @@ Provide a shared source of truth for resident and technician workflows, and an a
 - Record who created or changed a request, assignment, appointment, or status and when.
 - Synchronize technician updates to the resident and administrator apps.
 - Send each technician appointment-change proposal to both the assigned administrator and tenant, and store their decisions separately. Change the scheduled time only after both approve.
-- When a technician marks work complete, leave the request awaiting tenant confirmation. Only the tenant closes it; allow that tenant to reopen it for 24 hours after closure.
+- Review technician work rejections with reason; keep the tenant-facing status Pending / In Progress during review, then reassign or record another admin action.
+- Store tenant accept/reject decisions for completed work. Require administrator approval after tenant acceptance before closing the work order.
+- Accept or reject reopened work orders and resume accepted issues at the appropriate assignment stage.
+- Record work-start and completion timestamps and calculate elapsed work time for history and technician billing.
+- Enforce the tenant's 24-hour reopen period from the official work-order closure timestamp; require a reason and admin review for reopening.
 - Select backend framework, hosting, database, and authentication provider before implementation. Do not assume the legacy Spring Boot/AWS proposal is approved.
 
 ## Administrator Tablet Module
@@ -536,23 +540,37 @@ Add a technician role to the existing Android phone app, sharing its installatio
 - Open a job to view complaint details, apartment/building location, and relevant access notes.
 - Accept or update work progress and view previous completed assignments.
 - Propose an alternative appointment time to both the tenant and administrator when unable to attend; retain the existing appointment until both approve.
-- Record completion date and closing comments, then leave the request awaiting tenant confirmation instead of closing it.
-- Allow the tenant to close after confirming the work and reopen the request within 24 hours of that closure.
+
+### Technician Work Status and Notification Workflow
+
+Status: **Planned** (the local technician demo does not implement these notifications and approvals)
+
+1. **Work Accepted:** notify the tenant with the technician's name and notify the administrator.
+2. **Work Rejected:** require a reason and notify the administrator only. Keep the tenant-facing status Pending / In Progress while the administrator reviews and reassigns or takes another action.
+3. **Travelling to Site:** notify the tenant with the technician's name and notify the administrator.
+4. **Work Started:** notify the tenant and administrator.
+5. **Work Blocked:** require a reason/details and notify the tenant and administrator. Resume after the technician or administrator resolves the blocker.
+6. **Work Completed - Awaiting Confirmation:** record completion comments, completion timestamp, and time taken since Work Started for history/billing. Notify the tenant to accept/reject and notify the administrator that completion awaits review, including elapsed work time for history/billing. The administrator approves only after tenant acceptance; close only after both approvals. Tenant rejection returns the issue to an appropriate active status.
+7. **Reopened:** the tenant may reopen a closed work order within 24 hours of official closure and must provide a reason. Confirm to the tenant and notify the administrator. Admin reviews and accepts the issue for further action; repeat technician assignment, completion, tenant acceptance, and admin approval as needed.
+
+Every transition records timestamp and actor. Rejection, blocking, and reopening require reasons. Maintain complete status history for all authorized roles and send each specified notification to the relevant recipients.
 
 ## Confirmed Workflow Rules
 
 - Both the administrator and tenant must approve an appointment-time proposal before it becomes the scheduled appointment.
-- Technician completion does not close the request. The tenant closes it after confirming the work and may reopen it within 24 hours of closure.
+- Technician completion does not close the work order. The tenant accepts or rejects; administrator approval follows tenant acceptance, and closure requires both approvals.
+- The tenant may reopen a closed work order within 24 hours of official closure with a reason; admin must review and accept it for further action.
 - Define which tenant contact and apartment details technicians may access.
 
 The current prototype stores technician assignments and workflow actions locally. Tenant approval is available in the resident request view; the administrator approval step is not available while Stage 9 is on hold, so proposed appointment changes remain pending.
+The detailed status and notification workflow above is planned and is not implemented by the local technician demo.
 
 ## Definition Of Done
 
 - Technicians can access only their own assignments and permitted resident/location details.
 - Assignment, appointment, progress, and completion changes persist through the shared backend and appear in the resident and admin views.
 - Previous assignment history and proposed appointment decisions are visible to authorized roles.
-- The proposed appointment changes only after both approvals; the tenant can close completed work and reopen it during the 24-hour window.
+- The proposed appointment changes only after both approvals; completed work is closed only after tenant acceptance and admin approval, and may be reopened by the tenant within 24 hours.
 - Role, workflow, error, and meaningful UI behavior are tested.
 
 ---
@@ -576,7 +594,13 @@ Notify users about important events.
 - Move-Out Updates
 - Appointment change proposed or approved/rejected
 - Assignment accepted or completed by technician
-- Request closed by tenant or reopened within the 24-hour window
+- Work Accepted: notify tenant with technician name and notify administrator.
+- Work Rejected: notify administrator with reason only; do not immediately notify tenant.
+- Travelling to Site and Work Started: notify tenant and administrator.
+- Work Blocked: notify tenant and administrator with reason/details.
+- Work Completed - Awaiting Confirmation: notify tenant to accept/reject and notify administrator that review is pending.
+- Tenant acceptance/rejection and administrator approval/closure: notify relevant parties.
+- Tenant reopening within 24 hours: confirm to tenant and notify administrator.
 - Notify both tenant and administrator when either party records an appointment proposal decision.
 
 ## Technology
@@ -585,7 +609,9 @@ Select a notification provider during backend design; no provider is configured 
 
 ## Definition Of Done
 
-- Push notifications received successfully
+- Each Stage 10 event is delivered to the specified recipient(s) with the correct request, technician, status, and reason details.
+- Rejection notifications go only to the administrator while the tenant-facing status remains Pending / In Progress during review.
+- Push delivery failures and retries are handled and covered by notification tests.
 
 ---
 

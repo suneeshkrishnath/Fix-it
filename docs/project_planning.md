@@ -36,8 +36,35 @@ Both apps require a shared backend for identity, property records, requests, ass
 - Accept or update work, review previous assignments, and record progress.
 - Propose an alternative appointment time when unable to attend.
 - Send the same appointment proposal to both the administrator and tenant; the proposed time takes effect only after both approve.
-- Record completion date and closing comments.
-- Mark work completed; the tenant, not the technician, closes the request after confirming the work.
+
+### Technician Work Status and Notification Workflow (Planned)
+
+1. **Accept work**
+	- Status: Work Accepted.
+	- Notify the tenant with the technician's name and notify the administrator.
+2. **Reject work**
+	- Status: Work Rejected internally; require a rejection reason.
+	- Notify the administrator with the reason. Do not immediately notify the tenant; keep the tenant-facing status Pending / In Progress while the administrator reviews and arranges reassignment or another action.
+3. **Travel to site**
+	- Status: Travelling to Site.
+	- Notify the tenant with the technician's name and notify the administrator.
+4. **Start work**
+	- Status: Work Started.
+	- Notify the tenant and administrator.
+5. **Block or pause work**
+	- Status: Work Blocked; require a reason and relevant details.
+	- Notify the tenant with the reason/details and notify the administrator. Work resumes after the technician or administrator resolves the blocker.
+6. **Complete work**
+	- Status: Work Completed - Awaiting Confirmation.
+	- Record completion comments, completion timestamp, and time taken from Work Started to completion for history and technician billing.
+	- Notify the tenant to accept or reject the work; notify the administrator that completion awaits confirmation and include elapsed work time for history/billing.
+	- Close the work order only after the tenant accepts and the administrator approves. Tenant rejection returns it to an appropriate active status.
+7. **Reopen after closure**
+	- The tenant may reopen a closed work order within 24 hours of official closure and must provide a reason.
+	- Status: Reopened. Confirm to the tenant and notify the administrator for review and acceptance.
+	- After admin acceptance, resume at the appropriate stage, including assignment/technician acceptance as needed. Repeat completion and both approvals after the work is resolved again.
+
+Record each status transition with timestamp and actor. Rejection, blocking, and reopening require reasons. Keep complete status history for tenant, technician, and administrator, and send each specified notification to its intended recipients.
 
 ## Administrator Module (Separate Tablet App)
 
@@ -51,7 +78,7 @@ Both apps require a shared backend for identity, property records, requests, ass
 
 ## Shared Workflow and Access Control
 
-Resident submits request -> administrator reviews and assigns technician -> technician attends at the scheduled location/time and records progress -> if needed, technician proposes a new time to both tenant and administrator -> the time changes only after both approve -> technician records completion/comments -> tenant confirms the work and closes the request -> tenant may reopen it within 24 hours after closure.
+Resident submits request -> administrator reviews and assigns technician -> technician accepts and attends at the scheduled location/time -> technician records travel, start, blocked, and completion updates -> if needed, technician proposes a new time to both tenant and administrator -> the time changes only after both approve -> tenant accepts completed work -> administrator approves completion and closes the work order -> tenant may reopen it within 24 hours after closure.
 
 Synchronize requests, assignments, appointment changes, and status transitions through the backend. Enforce access permissions at the backend/API, not only in app navigation.
 
@@ -66,7 +93,7 @@ Synchronize requests, assignments, appointment changes, and status transitions t
 
 ## Resident
 
-Can raise requests, follow their own requests, approve or reject appointment proposals, close a request after work is complete, reopen it within 24 hours of closure, review history, and submit move-out requests.
+Can raise requests, follow their own requests, approve or reject appointment proposals, accept or reject completed work, reopen a closed work order within 24 hours with a reason, review history, and submit move-out requests. A work order closes only after tenant acceptance and administrator approval.
 
 ## Technician
 
@@ -76,7 +103,9 @@ Can:
 - View assigned tasks, request location, and scheduled time
 - Update task progress and view previous assignment history
 - Propose an alternative appointment time
-- Complete assigned service requests with closing comments
+- Report travel, work start, and blocking reasons
+- Complete assigned service requests with comments and time-taken records
+- Receive no immediate tenant notification for rejection; send the reason to the administrator for review
 
 ---
 
@@ -200,7 +229,9 @@ Features:
 
 - Push Notifications
 - Appointment Alerts
-- Status Updates
+- Notifications for work acceptance, travel, start, blocked work, completion, tenant decisions, admin approval, closure, and reopening
+- Rejection notifications to the administrator only while the tenant-facing status remains Pending / In Progress
+- Notifications to tenant and administrator for each specified state change
 
 ---
 
@@ -314,12 +345,17 @@ Limits:
 3. Assigned
 4. Appointment Scheduled
 5. In Progress
-6. Work Completed (awaiting tenant confirmation)
-7. Closed by Tenant
-8. Reopened by Tenant within 24 hours of closure
+6. Work Accepted
+7. Travelling to Site
+8. Work Started
+9. Work Blocked (reason required; can resume)
+10. Work Completed - Awaiting Confirmation
+11. Closed (tenant acceptance and administrator approval)
+12. Reopened by Tenant within 24 hours of closure
 
 Optional:
 
+- Work Rejected (internal; admin review and reassignment/action required)
 - Rejected
 - Cancelled
 
