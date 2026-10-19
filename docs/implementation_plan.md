@@ -3,6 +3,25 @@
 
 ---
 
+## Stage Index
+
+| Stage | Aim | Status | Remark |
+|---|---|---|---|
+| 1 | Project foundation | Done | Flutter Android resident prototype foundation. |
+| 2 | Resident authentication | Done | Local mock OTP sign-in. |
+| 3 | Resident dashboard | Done | Navigation exists; Profile and Move-out are placeholders. |
+| 4 | Service requests | Done | Local request submission; photo attachments are Stage 5. |
+| 5 | File uploads | Blocked | Deferred pending approved image selection and storage scope. |
+| 6 | Request tracking | Done | Local timeline; no remote status updates. |
+| 7 | Service history | Done | Local history and filters. |
+| 8 | Move-out | Planned | Current app destination is a placeholder. |
+| 9 | Shared backend and administrator tablet app | On Hold | Separate Android tablet module; appointment changes need tenant and admin approval; tenant closes/reopens completed requests within 24 hours. |
+| 10 | Technician module in shared phone app | Planned | Depends on shared backend; technician sign-in and assigned-work flow are not implemented. |
+| 11 | Notifications | Planned | Provider to be selected. |
+| 12 | Production deployment | Planned | Phone app, tablet app, and shared backend. |
+
+---
+
 # Project Development Strategy
 
 The project will be built in multiple stages using an incremental delivery approach.
@@ -10,6 +29,13 @@ The project will be built in multiple stages using an incremental delivery appro
 Each stage should deliver a fully functional and testable outcome.
 
 Copilot should complete one stage before moving to the next.
+
+## Delivery Phases and Modules
+
+- **Phase 1 (Stages 1-8):** Resident Android phone app and its resident workflows.
+- **Phase 2 (Stages 9-12):** Shared operations backend, technician role in the phone app, separate administrator Android tablet app, notifications, and deployment.
+
+The product has three modules across two Android apps: Resident and Technician roles share the phone app; Administrator uses a separate tablet app. The current repository is a resident-only Flutter prototype. Authentication and service requests are mock/local, and the Profile and Move-out destinations are placeholders. Do not describe future shared or role-based functionality as implemented.
 
 ---
 
@@ -303,6 +329,8 @@ Display
 # Stage 8
 # Move-Out Module
 
+Status: **Planned** (the current app destination is a placeholder)
+
 ## Goal
 
 Manage move-out requests.
@@ -340,69 +368,97 @@ GET /api/moveout/{id}
 ---
 
 # Stage 9
-# Administrator Portal
+# Shared Operations Backend and Administrator Tablet App
+
+Status: **On Hold** (implementation paused; backend and tablet app are not in the current repository)
 
 ## Goal
 
-Provide operations management.
+Provide a shared source of truth for resident and technician workflows, and an administrator experience optimized for Android tablets. The administrator app is separate from the resident/technician phone app.
 
-## Technology
+## Shared Backend Requirements
 
-React Web Application
+- Authenticate users and enforce resident, technician, and administrator roles on every protected operation.
+- Provide shared records and APIs for campuses, buildings/towers, apartments, tenancy, residents, technicians, services, requests, assignments, appointments, status history, and move-out requests.
+- Record who created or changed a request, assignment, appointment, or status and when.
+- Synchronize technician updates to the resident and administrator apps.
+- Send each technician appointment-change proposal to both the assigned administrator and tenant, and store their decisions separately. Change the scheduled time only after both approve.
+- When a technician marks work complete, leave the request awaiting tenant confirmation. Only the tenant closes it; allow that tenant to reopen it for 24 hours after closure.
+- Select backend framework, hosting, database, and authentication provider before implementation. Do not assume the legacy Spring Boot/AWS proposal is approved.
 
-## Features
+## Administrator Tablet Module
 
-### Resident Management
+### Property and Account Management
 
-- Search Residents
-- View Details
+- Add, edit, search, and deactivate campuses, buildings/towers, and apartments/units.
+- Add, edit, search, and deactivate resident/tenant records; associate each resident with an apartment and tenancy.
+- Add, edit, search, and deactivate technicians; record specialty and availability.
+- Create administrator accounts and assign roles and permissions.
 
-### Request Management
+### Request and Assignment Management
 
-- View Requests
-- Assign Requests
-- Change Status
-
-### Appointment Scheduling
-
-- Create Appointment
-- Reschedule Appointment
-
-### Technician Management
-
-- Create Technician
-- Update Technician
-- Assign Technician
+- Review and categorize incoming requests; approve, reject, or request more information.
+- Assign and reassign technicians, set appointment date/time, and review proposed appointment changes.
+- Approve or reject a technician's proposed appointment change. The existing appointment remains in effect until both administrator and tenant approve the new time.
+- View request, assignment, appointment, status, and move-out history.
+- Manage service categories and request status transitions.
 
 ## Definition Of Done
 
-- Admin manages entire workflow
+- Tablet layouts support the complete admin workflows and loading, empty, error, and confirmation states.
+- Role-based access is enforced by the backend, not only hidden in the UI.
+- Changes appear consistently in both apps and are covered by API and UI tests.
+- Property records, assignments, appointment changes, and status transitions have auditable history.
+- A proposed appointment change is not applied until both tenant and administrator approvals are recorded.
 
 ---
 
 # Stage 10
-# Technician Portal
+# Technician Module in the Shared Phone App
+
+Status: **Planned** (technician sign-in and assigned-job workflows are not implemented)
 
 ## Goal
 
-Provide technician workspace.
+Add a technician role to the existing Android phone app, sharing its installation with the resident role while keeping authorization and navigation role-specific.
 
 ## Features
 
-- View Assigned Tasks
-- Accept Job
-- Update Status
-- Add Notes
-- Upload Completion Photos
+### Technician Authentication
+
+- Sign in with a technician login ID.
+- Use the credential and recovery policy selected before implementation; do not reuse resident OTP assumptions without approval.
+- Route each authenticated account to its authorized resident or technician experience.
+
+### Assigned Work
+
+- List jobs assigned to the signed-in technician, with current status and appointment time.
+- Open a job to view complaint details, apartment/building location, and relevant access notes.
+- Accept or update work progress and view previous completed assignments.
+- Propose an alternative appointment time to both the tenant and administrator when unable to attend; retain the existing appointment until both approve.
+- Record completion date and closing comments, then leave the request awaiting tenant confirmation instead of closing it.
+- Allow the tenant to close after confirming the work and reopen the request within 24 hours of that closure.
+
+## Confirmed Workflow Rules
+
+- Both the administrator and tenant must approve an appointment-time proposal before it becomes the scheduled appointment.
+- Technician completion does not close the request. The tenant closes it after confirming the work and may reopen it within 24 hours of closure.
+- Define which tenant contact and apartment details technicians may access.
 
 ## Definition Of Done
 
-- Technician can complete jobs
+- Technicians can access only their own assignments and permitted resident/location details.
+- Assignment, appointment, progress, and completion changes persist through the shared backend and appear in the resident and admin views.
+- Previous assignment history and proposed appointment decisions are visible to authorized roles.
+- The proposed appointment changes only after both approvals; the tenant can close completed work and reopen it during the 24-hour window.
+- Role, workflow, error, and meaningful UI behavior are tested.
 
 ---
 
 # Stage 11
 # Notification System
+
+Status: **Planned**
 
 ## Goal
 
@@ -416,10 +472,14 @@ Notify users about important events.
 - Appointment Reminder
 - Request Completed
 - Move-Out Updates
+- Appointment change proposed or approved/rejected
+- Assignment accepted or completed by technician
+- Request closed by tenant or reopened within the 24-hour window
+- Notify both tenant and administrator when either party records an appointment proposal decision.
 
 ## Technology
 
-Firebase Cloud Messaging
+Select a notification provider during backend design; no provider is configured in the current prototype.
 
 ## Definition Of Done
 
@@ -428,49 +488,52 @@ Firebase Cloud Messaging
 ---
 
 # Stage 12
-# AWS Production Deployment
+# Production Deployment
+
+Status: **Planned** (hosting provider and production architecture require approval)
 
 ## Infrastructure
 
-Frontend
+Applications
 
-- React Native Mobile App
+- Flutter Android phone app (resident and technician roles)
+- Separate Flutter Android tablet app (administrator role)
 
-Backend
+Shared Backend
 
-- AWS ECS or EKS
+- To be selected; must expose secured APIs for both apps
 
 Database
 
-- Amazon RDS PostgreSQL
+- To be selected; must store shared property, identity, request, assignment, appointment, and audit records
 
-Storage
+File Storage
 
-- Amazon S3
+- Select a provider as part of the approved backend and attachment design.
 
-Authentication
+Authentication and Authorization
 
-- AWS Cognito
+- To be selected; must enforce role-based access
 
 Notifications
 
-- Firebase Cloud Messaging
+- Use the provider selected in Stage 11.
 
 Monitoring
 
-- CloudWatch
-- Prometheus
-- Grafana
+- Select monitoring and alerting services for the approved hosting environment.
 
 ## Definition Of Done
 
-- Production deployment successful
+- Phone app, tablet app, and shared backend are deployed to approved environments.
+- Release signing, secrets management, backup/restore, monitoring, and operational support are configured.
+- End-to-end resident, technician, and administrator workflows pass acceptance tests.
 
 ---
 
 # Future Enhancements
 
-Phase 2
+After Phase 2 delivery
 
 - Online Payments
 - Vendor Marketplace
@@ -478,7 +541,7 @@ Phase 2
 - AI Complaint Classification
 - Chat Support
 
-Phase 3
+Later enhancements
 
 - ERP Integration
 - CRM Integration
@@ -498,16 +561,16 @@ Phase 3
 
 ## Mobile Standards
 
-- React Native Functional Components
-- React Query
-- Redux Toolkit
+- Flutter and Dart for Android apps
+- Riverpod for state management
+- GoRouter for navigation
+- Keep administrator tablet app separate from the resident/technician phone app
 
 ## Backend Standards
 
-- Spring Boot 3+
-- JPA
-- Liquibase
-- JWT Security
+- Select backend framework and persistence stack before implementation
+- Secure APIs with role-based authorization and auditable status changes
+- Document APIs and validate them with automated tests
 
 ## Testing
 
@@ -523,16 +586,15 @@ Minimum Coverage:
 
 # MVP Delivery Order
 
-1. Authentication
-2. Dashboard
-3. Service Request
-4. Image Upload
-5. Tracking
-6. History
-7. Move-Out
-8. Admin Portal
-9. Notifications
-10. Production Deployment
+1. Resident authentication and dashboard
+2. Resident service requests, tracking, and history
+3. Approved attachment workflow
+4. Resident move-out workflow
+5. Shared backend, identity, and property data
+6. Administrator tablet app
+7. Technician role in the shared phone app
+8. Notifications
+9. Production deployment of both Android apps and the backend
 
 Target MVP Duration
 
