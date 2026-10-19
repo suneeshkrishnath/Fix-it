@@ -1,6 +1,6 @@
 # Fix-it
 
-Fix-it is an Android-only Flutter prototype for apartment residents. It demonstrates mock resident sign-in, locally stored service requests, request tracking, and service history. It does not connect to a backend.
+Fix-it is an Android-only Flutter prototype with resident and technician roles in one phone app. It demonstrates mock sign-in, locally stored requests, technician assignments, request tracking, and service history. It does not connect to a backend.
 
 ## Requirements
 
@@ -84,11 +84,22 @@ To build, install, and launch in one step, use `flutter run -d <device-id>`.
 
 The current request categories are Plumbing, Electrical, Maintenance, Cleaning, Installation, Home Services, and Electrical Upgrade. The dashboard's Resident profile and Move-out request destinations currently show planned-feature placeholders.
 
+## Technician App Walkthrough
+
+1. From the resident sign-in screen, choose **Technician sign in**.
+2. Enter the demo technician ID `TECH-001`. This prototype accepts the ID without a password; it is not secure authentication.
+3. Use the **Assigned** and **Work history** tabs to review sample jobs. Open an assignment to see its request details, apartment location, and scheduled time.
+4. For an active job, accept the assignment, start work, and mark it complete with comments. Completion moves it to **Awaiting tenant confirmation**; it does not close the request.
+5. Use **Propose new time** to submit an appointment change. Sign in as the resident and open that request to approve or reject the proposal.
+6. The tenant can confirm and close technician-completed work, then reopen it within 24 hours after closure.
+
+Sample technician assignments are stored alongside resident requests on the device. They are demonstrations, not real jobs.
+
 ## Prototype Behavior and Limits
 
-- Authentication accepts only the demo credentials above. The resident session and service requests are stored locally with Hive.
-- Request statuses are local prototype data; no administrator or technician can change them, and there is no remote synchronization.
-- Photo attachments, technician and manager workflows, push notifications, online payments, and backend integrations are not implemented.
+- Resident authentication accepts only the demo credentials above. Technician prototype sign-in accepts `TECH-001` by ID only. Both sessions and requests are stored locally with Hive.
+- Technician status updates, tenant appointment decisions, request closure, and reopening are local prototype behavior. There is no backend synchronization or administrator app; an appointment proposal remains pending until both tenant and administrator approval exist.
+- Photo attachments, the administrator tablet app, production authentication, push notifications, online payments, and backend integrations are not implemented.
 - Reinstalling or clearing app data may remove locally stored prototype information.
 
 ## Checks

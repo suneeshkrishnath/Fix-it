@@ -1,0 +1,301 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../requests/domain/models/service_request.dart';
+import '../providers/technician_providers.dart';
+
+class TechnicianJobDetailsScreen extends ConsumerWidget {
+  const TechnicianJobDetailsScreen({required this.requestId, super.key});
+
+  final String requestId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final assignments = ref.watch(technicianAssignmentsProvider);
+    return assignments.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (error, stackTrace) => Scaffold(
+        appBar: AppBar(title: const Text('Job details')),
+        body: Center(child: Text('Could not load job: $error')),
+      ),
+      data: (items) {
+        final matches = items.where((item) => item.id == requestId);
+        if (matches.isEmpty) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Job details')),
+            body: const Center(child: Text('Assignment not found.')),
+          );
+        }
+        return _JobDetails(assignment: matches.first);
+      },
+    );
+  }
+}
+
+class _JobDetails extends ConsumerWidget {
+  const _JobDetails({required this.assignment});
+
+  final ServiceRequest assignment;
+
+  Future<void> _setStatus(
+    BuildContext context,
+    WidgetRef ref,
+    ServiceRequestStatus status, {
+    String? completionComments,
+  }) async {
+    await ref
+        .read(technicianAssignmentRepositoryProvider)
+        .updateStatus(
+          assignment.id,
+          status,
+          completionComments: completionComments,
+        );
+    ref.invalidate(technicianAssignmentsProvider);
+  }
+
+  Future<void> _completeWork(BuildContext context, WidgetRef ref) async {
+    var completionComments = '';
+    final comments = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Complete work'),
+        content: TextField(
+          key: const Key('completion-comments-field'),
+          minLines: 2,
+          maxLines: 5,
+          onChanged: (value) => completionComments = value,
+          decoration: const InputDecoration(
+            labelText: 'Completion comments',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            key: const Key('confirm-completion'),
+            onPressed: () =>
+                Navigator.pop(dialogContext, completionComments.trim()),
+            child: const Text('Submit completion'),
+          ),
+        ],
+      ),
+    );
+    if (comments == null || comments.isEmpty || !context.mounted) return;
+    await _setStatus(
+      context,
+      ref,
+      ServiceRequestStatus.awaitingTenantConfirmation,
+      completionComments: comments,
+    );
+  }
+
+  Future<void> _proposeAppointment(BuildContext context, WidgetRef ref) async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: assignment.appointmentAt ?? now,
+      firstDate: now,
+      lastDate: DateTime(now.year + 2),
+    );
+    if (date == null || !context.mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: assignment.appointmentAt == null
+          ? TimeOfDay.now()
+          : TimeOfDay.fromDateTime(assignment.appointmentAt!),
+    );
+    if (time == null || !context.mounted) return;
+    final proposedAt = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+    await ref
+        .read(technicianAssignmentRepositoryProvider)
+        .proposeAppointmentChange(assignment.id, proposedAt);
+    if (!context.mounted) return;
+    ref.invalidate(technicianAssignmentsProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Proposal saved. Tenant and administrator approval are required.',
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final assignment = this.assignment;
+    final localizations = MaterialLocalizations.of(context);
+    final isAwaitingTenant =
+        assignment.awaitingTenantConfirmation ||
+        assignment.status == ServiceRequestStatus.awaitingTenantConfirmation;
+    final isClosed = assignment.status == ServiceRequestStatus.closed;
+    final hasProposal = assignment.proposedAppointmentAt != null;
+    return Scaffold(
+      appBar: AppBar(title: Text(assignment.requestNumber)),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          if (assignment.isSample)
+            const ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text(
+                'Sample assignment. No real resident or service is affected.',
+              ),
+            ),
+          Text(
+            '${assignment.category} · ${assignment.subcategory}',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 12),
+          _DetailRow(label: 'Request', value: assignment.description),
+          _DetailRow(
+            label: 'Location',
+            value: assignment.location ?? 'Location unavailable',
+          ),
+          _DetailRow(
+            label: 'Scheduled time',
+            value: assignment.appointmentAt == null
+                ? 'Not scheduled'
+                : _formatDateTime(localizations, assignment.appointmentAt!),
+          ),
+          _DetailRow(
+            label: 'Status',
+            value: isAwaitingTenant
+                ? 'Work completed · awaiting tenant confirmation'
+                : _statusLabel(assignment.status),
+          ),
+          if (assignment.completionComments != null)
+            _DetailRow(
+              label: 'Completion comments',
+              value: assignment.completionComments!,
+            ),
+          if (hasProposal) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Appointment change proposal',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _formatDateTime(
+                        localizations,
+                        assignment.proposedAppointmentAt!,
+                      ),
+                    ),
+                    Text(
+                      'Tenant: ${assignment.tenantApprovedAppointmentChange ? 'approved' : 'pending'}',
+                    ),
+                    Text(
+                      'Administrator: ${assignment.adminApprovedAppointmentChange ? 'approved' : 'pending'}',
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'The scheduled appointment remains unchanged until both approve.',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          if (isAwaitingTenant)
+            const Card(
+              child: ListTile(
+                leading: Icon(Icons.hourglass_top),
+                title: Text('Waiting for tenant confirmation'),
+                subtitle: Text(
+                  'The tenant closes the request after confirming the repair.',
+                ),
+              ),
+            ),
+          if (!isAwaitingTenant && !isClosed) ...[
+            const SizedBox(height: 20),
+            if (assignment.status == ServiceRequestStatus.assigned)
+              FilledButton.icon(
+                key: const Key('accept-assignment'),
+                onPressed: () =>
+                    _setStatus(context, ref, ServiceRequestStatus.accepted),
+                icon: const Icon(Icons.check),
+                label: const Text('Accept assignment'),
+              ),
+            if (assignment.status == ServiceRequestStatus.accepted ||
+                assignment.status == ServiceRequestStatus.reopened)
+              FilledButton.icon(
+                key: const Key('start-work'),
+                onPressed: () =>
+                    _setStatus(context, ref, ServiceRequestStatus.inProgress),
+                icon: const Icon(Icons.play_arrow),
+                label: const Text('Start work'),
+              ),
+            if (assignment.status == ServiceRequestStatus.inProgress) ...[
+              OutlinedButton.icon(
+                key: const Key('propose-appointment'),
+                onPressed: () => _proposeAppointment(context, ref),
+                icon: const Icon(Icons.schedule),
+                label: const Text('Propose new time'),
+              ),
+              FilledButton.icon(
+                key: const Key('complete-work'),
+                onPressed: () => _completeWork(context, ref),
+                icon: const Icon(Icons.task_alt),
+                label: const Text('Mark work complete'),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.labelMedium),
+        const SizedBox(height: 2),
+        Text(value),
+      ],
+    ),
+  );
+}
+
+String _formatDateTime(MaterialLocalizations localizations, DateTime value) =>
+    '${localizations.formatMediumDate(value)} ${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(value))}';
+
+String _statusLabel(ServiceRequestStatus status) => switch (status) {
+  ServiceRequestStatus.submitted => 'Submitted',
+  ServiceRequestStatus.accepted => 'Accepted',
+  ServiceRequestStatus.assigned => 'Assigned',
+  ServiceRequestStatus.appointmentScheduled => 'Appointment scheduled',
+  ServiceRequestStatus.inProgress => 'In progress',
+  ServiceRequestStatus.completed => 'Completed',
+  ServiceRequestStatus.awaitingTenantConfirmation =>
+    'Awaiting tenant confirmation',
+  ServiceRequestStatus.closed => 'Closed by tenant',
+  ServiceRequestStatus.reopened => 'Reopened',
+  ServiceRequestStatus.rejected => 'Rejected',
+  ServiceRequestStatus.cancelled => 'Cancelled',
+};

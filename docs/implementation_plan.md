@@ -16,7 +16,7 @@
 | 7 | Service history | Done | Local history and filters. |
 | 8 | Move-out | Planned | Current app destination is a placeholder. |
 | 9 | Shared backend and administrator tablet app | On Hold | Separate Android tablet module; appointment changes need tenant and admin approval; tenant closes/reopens completed requests within 24 hours. |
-| 10 | Technician module in shared phone app | Planned | Depends on shared backend; technician sign-in and assigned-work flow are not implemented. |
+| 10 | Technician module in shared phone app | In Progress | Local mock login, assignments, history, and job actions are implemented; backend and admin approval remain pending Stage 9. |
 | 11 | Notifications | Planned | Provider to be selected. |
 | 12 | Production deployment | Planned | Phone app, tablet app, and shared backend. |
 
@@ -35,7 +35,7 @@ Copilot should complete one stage before moving to the next.
 - **Phase 1 (Stages 1-8):** Resident Android phone app and its resident workflows.
 - **Phase 2 (Stages 9-12):** Shared operations backend, technician role in the phone app, separate administrator Android tablet app, notifications, and deployment.
 
-The product has three modules across two Android apps: Resident and Technician roles share the phone app; Administrator uses a separate tablet app. The current repository is a resident-only Flutter prototype. Authentication and service requests are mock/local, and the Profile and Move-out destinations are placeholders. Do not describe future shared or role-based functionality as implemented.
+The product has three modules across two Android apps: Resident and Technician roles share the phone app; Administrator uses a separate tablet app. The current repository has resident workflows and a local mock technician module. Authentication, assignments, and service requests are local; the Profile and Move-out destinations are placeholders. Do not describe mock behavior as backend-synchronized or production-ready.
 
 ---
 
@@ -416,7 +416,7 @@ Provide a shared source of truth for resident and technician workflows, and an a
 # Stage 10
 # Technician Module in the Shared Phone App
 
-Status: **Planned** (technician sign-in and assigned-job workflows are not implemented)
+Status: **In Progress** (local mock technician workflow implemented; shared backend and administrator approval depend on Stage 9)
 
 ## Goal
 
@@ -427,7 +427,7 @@ Add a technician role to the existing Android phone app, sharing its installatio
 ### Technician Authentication
 
 - Sign in with a technician login ID.
-- Use the credential and recovery policy selected before implementation; do not reuse resident OTP assumptions without approval.
+- Prototype accepts `TECH-001` by ID only. This is demonstration access, not secure authentication; select production credentials and recovery policy before release.
 - Route each authenticated account to its authorized resident or technician experience.
 
 ### Assigned Work
@@ -444,6 +444,8 @@ Add a technician role to the existing Android phone app, sharing its installatio
 - Both the administrator and tenant must approve an appointment-time proposal before it becomes the scheduled appointment.
 - Technician completion does not close the request. The tenant closes it after confirming the work and may reopen it within 24 hours of closure.
 - Define which tenant contact and apartment details technicians may access.
+
+The current prototype stores technician assignments and workflow actions locally. Tenant approval is available in the resident request view; the administrator approval step is not available while Stage 9 is on hold, so proposed appointment changes remain pending.
 
 ## Definition Of Done
 

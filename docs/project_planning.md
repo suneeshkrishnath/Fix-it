@@ -415,7 +415,7 @@ Submitted
 
 # Technology Direction
 
-- Resident/technician phone app: Flutter and Dart for Android. The resident prototype exists; technician mode is planned.
+- Resident/technician phone app: Flutter and Dart for Android. Resident workflows and a local mock technician mode exist; secure authentication and shared technician workflows are planned.
 - Administrator: separate Flutter Android tablet app, planned.
 - Shared backend: required for identity, permissions, property records, requests, assignments, appointments, and audit history. Select framework, hosting, and API design before implementation.
 - Database and file storage: select with the backend. The current prototype uses Hive locally and does not upload files.
@@ -428,6 +428,6 @@ Submitted
 
 Planned product scope includes resident authentication and service workflows, technician assignment/workflows in the shared phone app, administrator property/account/request management in the tablet app, and move-out tracking. Photo attachments remain deferred pending approval of selection and storage behavior.
 
-The current repository is an Android Flutter resident prototype. It has mock OTP authentication, local service request creation/tracking/history, and dashboard placeholders for Profile and Move-out. Technician mode, the administrator tablet app, shared backend, live status updates, and photo upload are not implemented.
+The current repository is an Android Flutter prototype with mock resident OTP authentication, local service request creation/tracking/history, and a local mock technician role with sample assignments and job actions. Profile and Move-out are dashboard placeholders. The administrator tablet app, shared backend, live synchronization, and photo upload are not implemented. Technician sign-in accepts the demo ID `TECH-001` only and is not production authentication. Appointment proposals remain pending because administrator approval is not available.
 
 Future enhancements include online payments, chat, AI classification, a vendor marketplace, and ERP integration.
