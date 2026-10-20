@@ -157,7 +157,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Ready to assign'), findsOneWidget);
 
-    await tester.ensureVisible(find.byKey(const Key('assign-technician-action')));
+    await tester.ensureVisible(
+      find.byKey(const Key('assign-technician-action')),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('assign-technician-action')));
     await tester.pumpAndSettle();
@@ -172,7 +174,9 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.ensureVisible(find.byKey(const Key('reassign-technician-action')));
+    await tester.ensureVisible(
+      find.byKey(const Key('reassign-technician-action')),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('reassign-technician-action')));
     await tester.pumpAndSettle();
@@ -190,5 +194,85 @@ void main() {
     expect(find.text('Assigned technician: Imran Qureshi'), findsOneWidget);
     expect(find.text('Technician reassigned'), findsOneWidget);
     expect(find.text('Reason: Specialty coverage changed.'), findsOneWidget);
+  });
+
+  testWidgets('appointment updates only after tenant and admin approve', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const FixItAdminApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('request-row-REQ-1038')));
+    await tester.pumpAndSettle();
+
+    final originalAppointment = tester
+        .widget<Text>(find.byKey(const Key('current-appointment')))
+        .data!;
+    final proposedAppointment = tester
+        .widget<Text>(find.textContaining('Proposed:').first)
+        .data!
+        .replaceFirst('Proposed: ', '');
+
+    await tester.ensureVisible(
+      find.byKey(const Key('admin-approve-appointment-action')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('admin-approve-appointment-action')));
+    await tester.pumpAndSettle();
+    expect(find.text('Admin decision: Approved'), findsOneWidget);
+    expect(find.text(originalAppointment), findsOneWidget);
+
+    await tester.ensureVisible(
+      find.byKey(const Key('tenant-approve-appointment-action')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const Key('tenant-approve-appointment-action')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Current: $proposedAppointment'), findsOneWidget);
+    expect(
+      find.text('Both approved. Proposed appointment confirmed.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('appointment rejection retains current scheduled time', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const FixItAdminApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('request-row-REQ-1038')));
+    await tester.pumpAndSettle();
+
+    final originalAppointment = tester
+        .widget<Text>(find.byKey(const Key('current-appointment')))
+        .data!;
+    await tester.ensureVisible(
+      find.byKey(const Key('tenant-reject-appointment-action')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('tenant-reject-appointment-action')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('request-decision-reason-field')),
+      'The proposed time does not work.',
+    );
+    await tester.tap(find.byKey(const Key('save-request-decision')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(originalAppointment), findsOneWidget);
+    expect(
+      find.text('Proposal declined. Existing appointment retained.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Reason: The proposed time does not work.'),
+      findsOneWidget,
+    );
   });
 }

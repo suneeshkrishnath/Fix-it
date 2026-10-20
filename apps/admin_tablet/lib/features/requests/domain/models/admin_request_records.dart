@@ -32,6 +32,40 @@ class AdminRequestEvent {
   final String? technicianName;
 }
 
+enum AppointmentDecision { pending, approved, rejected }
+
+class AppointmentProposal {
+  const AppointmentProposal({
+    required this.proposedAt,
+    required this.reason,
+    this.tenantDecision = AppointmentDecision.pending,
+    this.adminDecision = AppointmentDecision.pending,
+    this.tenantDecisionAt,
+    this.adminDecisionAt,
+  });
+
+  final DateTime proposedAt;
+  final String reason;
+  final AppointmentDecision tenantDecision;
+  final AppointmentDecision adminDecision;
+  final DateTime? tenantDecisionAt;
+  final DateTime? adminDecisionAt;
+
+  AppointmentProposal copyWith({
+    AppointmentDecision? tenantDecision,
+    AppointmentDecision? adminDecision,
+    DateTime? tenantDecisionAt,
+    DateTime? adminDecisionAt,
+  }) => AppointmentProposal(
+    proposedAt: proposedAt,
+    reason: reason,
+    tenantDecision: tenantDecision ?? this.tenantDecision,
+    adminDecision: adminDecision ?? this.adminDecision,
+    tenantDecisionAt: tenantDecisionAt ?? this.tenantDecisionAt,
+    adminDecisionAt: adminDecisionAt ?? this.adminDecisionAt,
+  );
+}
+
 class AdminRequestRecord {
   const AdminRequestRecord({
     required this.id,
@@ -45,6 +79,8 @@ class AdminRequestRecord {
     required this.createdAt,
     required this.status,
     required this.history,
+    this.scheduledAt,
+    this.appointmentProposal,
     this.assignedTechnicianId,
     this.assignedTechnicianName,
   });
@@ -59,12 +95,16 @@ class AdminRequestRecord {
   final String priority;
   final DateTime createdAt;
   final WorkRequestStatus status;
+  final DateTime? scheduledAt;
+  final AppointmentProposal? appointmentProposal;
   final String? assignedTechnicianId;
   final String? assignedTechnicianName;
   final List<AdminRequestEvent> history;
 
   AdminRequestRecord copyWith({
     WorkRequestStatus? status,
+    DateTime? scheduledAt,
+    AppointmentProposal? appointmentProposal,
     String? assignedTechnicianId,
     String? assignedTechnicianName,
     List<AdminRequestEvent>? history,
@@ -79,6 +119,8 @@ class AdminRequestRecord {
     priority: priority,
     createdAt: createdAt,
     status: status ?? this.status,
+    scheduledAt: scheduledAt ?? this.scheduledAt,
+    appointmentProposal: appointmentProposal ?? this.appointmentProposal,
     assignedTechnicianId: assignedTechnicianId ?? this.assignedTechnicianId,
     assignedTechnicianName:
         assignedTechnicianName ?? this.assignedTechnicianName,

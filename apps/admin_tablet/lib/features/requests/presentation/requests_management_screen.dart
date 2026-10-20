@@ -210,6 +210,10 @@ class _RequestsManagementScreenState extends State<RequestsManagementScreen> {
                 ),
                 const SizedBox(height: 12),
                 _RequestFacts(request: request),
+                if (request.status == WorkRequestStatus.assigned) ...[
+                  const SizedBox(height: 14),
+                  _appointmentSection(request),
+                ],
                 const SizedBox(height: 12),
                 Text(
                   request.description,
@@ -237,6 +241,234 @@ class _RequestsManagementScreenState extends State<RequestsManagementScreen> {
             ),
           ),
   );
+
+  Widget _appointmentSection(AdminRequestRecord request) {
+    final proposal = request.appointmentProposal;
+    final rejected =
+        proposal?.tenantDecision == AppointmentDecision.rejected ||
+        proposal?.adminDecision == AppointmentDecision.rejected;
+    final confirmed =
+        proposal != null &&
+        proposal.tenantDecision == AppointmentDecision.approved &&
+        proposal.adminDecision == AppointmentDecision.approved;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        Text('Appointment', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 6),
+        Text(
+          request.scheduledAt == null
+              ? 'No appointment scheduled'
+              : 'Current: ${_formatDateTime(request.scheduledAt!)}',
+          key: const Key('current-appointment'),
+        ),
+        if (proposal != null) ...[
+          const SizedBox(height: 6),
+          Text('Proposed: ${_formatDateTime(proposal.proposedAt)}'),
+          Text('Reason: ${proposal.reason}'),
+          Text('Tenant decision: ${_decisionLabel(proposal.tenantDecision)}'),
+          Text('Admin decision: ${_decisionLabel(proposal.adminDecision)}'),
+          if (confirmed)
+            const Text('Both approved. Proposed appointment confirmed.'),
+          if (rejected)
+            const Text('Proposal declined. Existing appointment retained.'),
+        ],
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (proposal == null || confirmed || rejected)
+              OutlinedButton.icon(
+                key: const Key('propose-appointment-action'),
+                onPressed: () => _proposeAppointment(request),
+                icon: const Icon(Icons.event_outlined),
+                label: const Text('Propose appointment change'),
+              ),
+            if (proposal != null && !confirmed && !rejected) ...[
+              if (proposal.tenantDecision == AppointmentDecision.pending) ...[
+                OutlinedButton(
+                  key: const Key('tenant-approve-appointment-action'),
+                  onPressed: () => _recordAppointmentDecision(
+                    request,
+                    byTenant: true,
+                    decision: AppointmentDecision.approved,
+                  ),
+                  child: const Text('Simulate tenant approval'),
+                ),
+                OutlinedButton(
+                  key: const Key('tenant-reject-appointment-action'),
+                  onPressed: () => _recordAppointmentDecision(
+                    request,
+                    byTenant: true,
+                    decision: AppointmentDecision.rejected,
+                  ),
+                  child: const Text('Simulate tenant rejection'),
+                ),
+              ],
+              if (proposal.adminDecision == AppointmentDecision.pending) ...[
+                FilledButton(
+                  key: const Key('admin-approve-appointment-action'),
+                  onPressed: () => _recordAppointmentDecision(
+                    request,
+                    byTenant: false,
+                    decision: AppointmentDecision.approved,
+                  ),
+                  child: const Text('Approve proposed time'),
+                ),
+                OutlinedButton(
+                  key: const Key('admin-reject-appointment-action'),
+                  onPressed: () => _recordAppointmentDecision(
+                    request,
+                    byTenant: false,
+                    decision: AppointmentDecision.rejected,
+                  ),
+                  child: const Text('Reject proposed time'),
+                ),
+              ],
+            ],
+          ],
+        ),
+        const Divider(),
+      ],
+    );
+  }
+
+  Future<void> _proposeAppointment(AdminRequestRecord request) async {
+    final current = request.scheduledAt ?? DateTime.now();
+    var selectedDate = DateTime.now().add(const Duration(days: 1));
+    var selectedTime = TimeOfDay.fromDateTime(current);
+    var reason = '';
+    final formKey = GlobalKey<FormState>();
+    final result =
+        await showDialog<({DateTime date, TimeOfDay time, String reason})>(
+          context: context,
+          builder: (dialogContext) => StatefulBuilder(
+            builder: (context, setDialogState) => AlertDialog(
+              title: const Text('Propose appointment change'),
+              content: SizedBox(
+                width: 480,
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              key: const Key('appointment-date-picker'),
+                              onPressed: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: selectedDate,
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.now().add(
+                                    const Duration(days: 365),
+                                  ),
+                                );
+                                if (date != null) {
+                                  setDialogState(() => selectedDate = date);
+                                }
+                              },
+                              icon: const Icon(Icons.calendar_today_outlined),
+                              label: Text(_formatDate(selectedDate)),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              key: const Key('appointment-time-picker'),
+                              onPressed: () async {
+                                final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: selectedTime,
+                                );
+                                if (time != null) {
+                                  setDialogState(() => selectedTime = time);
+                                }
+                              },
+                              icon: const Icon(Icons.schedule_outlined),
+                              label: Text(selectedTime.format(context)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        key: const Key('appointment-proposal-reason-field'),
+                        decoration: const InputDecoration(
+                          labelText: 'Reason for change',
+                        ),
+                        maxLines: 2,
+                        validator: (value) =>
+                            value == null || value.trim().isEmpty
+                            ? 'Enter a reason for the change.'
+                            : null,
+                        onChanged: (value) => reason = value,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  key: const Key('save-appointment-proposal'),
+                  onPressed: () {
+                    if (!formKey.currentState!.validate()) return;
+                    Navigator.pop(dialogContext, (
+                      date: selectedDate,
+                      time: selectedTime,
+                      reason: reason.trim(),
+                    ));
+                  },
+                  child: const Text('Send proposal'),
+                ),
+              ],
+            ),
+          ),
+        );
+    if (result == null || !mounted) return;
+    final proposedAt = DateTime(
+      result.date.year,
+      result.date.month,
+      result.date.day,
+      result.time.hour,
+      result.time.minute,
+    );
+    widget.requests.proposeAppointmentChange(
+      requestId: request.id,
+      proposedAt: proposedAt,
+      reason: result.reason,
+    );
+  }
+
+  Future<void> _recordAppointmentDecision(
+    AdminRequestRecord request, {
+    required bool byTenant,
+    required AppointmentDecision decision,
+  }) async {
+    var reason = '';
+    if (decision == AppointmentDecision.rejected) {
+      final response = await _reasonDialog(
+        title: byTenant ? 'Simulate tenant rejection' : 'Reject proposed time',
+        label: 'Reason for rejection',
+      );
+      if (response == null || !mounted) return;
+      reason = response;
+    }
+    widget.requests.recordAppointmentDecision(
+      requestId: request.id,
+      byTenant: byTenant,
+      decision: decision,
+      reason: reason,
+    );
+  }
 
   Widget _decisionActions(AdminRequestRecord request) => Wrap(
     spacing: 8,
@@ -587,3 +819,15 @@ String _formatDateTime(DateTime dateTime) {
   final minute = local.minute.toString().padLeft(2, '0');
   return '$day/$month/${local.year} $hour:$minute';
 }
+
+String _formatDate(DateTime dateTime) {
+  final month = dateTime.month.toString().padLeft(2, '0');
+  final day = dateTime.day.toString().padLeft(2, '0');
+  return '$day/$month/${dateTime.year}';
+}
+
+String _decisionLabel(AppointmentDecision decision) => switch (decision) {
+  AppointmentDecision.pending => 'Pending',
+  AppointmentDecision.approved => 'Approved',
+  AppointmentDecision.rejected => 'Rejected',
+};

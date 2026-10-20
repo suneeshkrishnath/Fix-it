@@ -53,6 +53,11 @@ class MockAdminRequestRepository extends ChangeNotifier {
           priority: 'Urgent',
           status: WorkRequestStatus.assigned,
           createdAt: DateTime(2026, 10, 19, 16, 35),
+          scheduledAt: DateTime.now().add(const Duration(days: 1)),
+          appointmentProposal: AppointmentProposal(
+            proposedAt: DateTime.now().add(const Duration(days: 2)),
+            reason: 'Technician needs a later access window.',
+          ),
           technicianId: 'tech-imran',
           technicianName: 'Imran Qureshi',
           history: [
@@ -179,6 +184,112 @@ class MockAdminRequestRepository extends ChangeNotifier {
     );
   }
 
+  void proposeAppointmentChange({
+    required String requestId,
+    required DateTime proposedAt,
+    required String reason,
+  }) {
+    final request = _requests.firstWhere((item) => item.id == requestId);
+    if (request.status != WorkRequestStatus.assigned) {
+      throw StateError('Only assigned requests can change appointments.');
+    }
+    if (proposedAt.isBefore(DateTime.now())) {
+      throw ArgumentError.value(proposedAt, 'proposedAt', 'Must be in future');
+    }
+    if (reason.trim().isEmpty) {
+      throw ArgumentError.value(reason, 'reason', 'A reason is required');
+    }
+    if (request.appointmentProposal != null &&
+        request.appointmentProposal!.tenantDecision ==
+            AppointmentDecision.pending &&
+        request.appointmentProposal!.adminDecision ==
+            AppointmentDecision.pending) {
+      throw StateError('Resolve the current appointment proposal first.');
+    }
+    _updateRequest(
+      requestId,
+      (current) => current.copyWith(
+        appointmentProposal: AppointmentProposal(
+          proposedAt: proposedAt,
+          reason: reason.trim(),
+        ),
+        history: [
+          ...current.history,
+          AdminRequestEvent(
+            label: 'Appointment change proposed',
+            actor: current.assignedTechnicianName ?? 'Technician',
+            occurredAt: DateTime.now(),
+            reason: reason.trim(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void recordAppointmentDecision({
+    required String requestId,
+    required bool byTenant,
+    required AppointmentDecision decision,
+    String reason = '',
+  }) {
+    if (decision == AppointmentDecision.pending) {
+      throw ArgumentError.value(decision, 'decision', 'Decision must be final');
+    }
+    if (decision == AppointmentDecision.rejected && reason.trim().isEmpty) {
+      throw ArgumentError.value(reason, 'reason', 'Rejection needs a reason');
+    }
+    final request = _requests.firstWhere((item) => item.id == requestId);
+    final proposal = request.appointmentProposal;
+    if (proposal == null ||
+        proposal.tenantDecision == AppointmentDecision.rejected ||
+        proposal.adminDecision == AppointmentDecision.rejected ||
+        (byTenant
+            ? proposal.tenantDecision != AppointmentDecision.pending
+            : proposal.adminDecision != AppointmentDecision.pending)) {
+      throw StateError('No decision is pending for this reviewer.');
+    }
+    final now = DateTime.now();
+    final updatedProposal = byTenant
+        ? proposal.copyWith(tenantDecision: decision, tenantDecisionAt: now)
+        : proposal.copyWith(adminDecision: decision, adminDecisionAt: now);
+    final approvedByBoth =
+        updatedProposal.tenantDecision == AppointmentDecision.approved &&
+        updatedProposal.adminDecision == AppointmentDecision.approved;
+    final rejected = decision == AppointmentDecision.rejected;
+    _updateRequest(
+      requestId,
+      (current) => current.copyWith(
+        appointmentProposal: updatedProposal,
+        scheduledAt: approvedByBoth
+            ? updatedProposal.proposedAt
+            : current.scheduledAt,
+        history: [
+          ...current.history,
+          AdminRequestEvent(
+            label: byTenant
+                ? 'Tenant ${decision.name} appointment proposal'
+                : 'Admin ${decision.name} appointment proposal',
+            actor: byTenant ? 'Tenant (preview)' : 'Admin',
+            occurredAt: now,
+            reason: reason.trim().isEmpty ? null : reason.trim(),
+          ),
+          if (approvedByBoth)
+            AdminRequestEvent(
+              label: 'Appointment change confirmed',
+              actor: 'System (local preview)',
+              occurredAt: now,
+            ),
+          if (rejected)
+            AdminRequestEvent(
+              label: 'Existing appointment retained',
+              actor: 'System (local preview)',
+              occurredAt: now,
+            ),
+        ],
+      ),
+    );
+  }
+
   void _updateRequest(
     String id,
     AdminRequestRecord Function(AdminRequestRecord request) update,
@@ -203,6 +314,8 @@ AdminRequestRecord _seedRequest({
   required String priority,
   required WorkRequestStatus status,
   required DateTime createdAt,
+  DateTime? scheduledAt,
+  AppointmentProposal? appointmentProposal,
   String? technicianId,
   String? technicianName,
   List<AdminRequestEvent>? history,
@@ -217,6 +330,8 @@ AdminRequestRecord _seedRequest({
   priority: priority,
   createdAt: createdAt,
   status: status,
+  scheduledAt: scheduledAt,
+  appointmentProposal: appointmentProposal,
   assignedTechnicianId: technicianId,
   assignedTechnicianName: technicianName,
   history:
