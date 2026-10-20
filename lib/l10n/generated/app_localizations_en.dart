@@ -439,6 +439,149 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workflowEventTime => 'Event time';
 
   @override
+  String get notificationCenter => 'Notifications';
+
+  @override
+  String get notificationRequestLabel => 'Request';
+
+  @override
+  String get notificationExamplesNotice =>
+      'Sample notification previews only; push delivery is not enabled.';
+
+  @override
+  String get notificationAudienceTenant => 'Tenant';
+
+  @override
+  String get notificationAudienceTechnician => 'Technician';
+
+  @override
+  String get notificationAudienceAdminPreview => 'Admin preview';
+
+  @override
+  String get notificationInboxEmpty => 'No sample notifications for this role.';
+
+  @override
+  String get notificationTenantAcceptedTitle =>
+      'Tenant accepted completed work';
+
+  @override
+  String get notificationTenantRejectedTitle =>
+      'Tenant rejected completed work';
+
+  @override
+  String get notificationAdminApprovedTitle =>
+      'Administrator approved completion';
+
+  @override
+  String get notificationProposalDecisionTitle =>
+      'Appointment proposal decision';
+
+  @override
+  String notificationWorkRejectedTechnician(String requestNumber) {
+    return 'Your rejection for work $requestNumber is under administrator review.';
+  }
+
+  @override
+  String notificationTechnicianAssigned(String requestNumber) {
+    return 'You have been assigned work $requestNumber.';
+  }
+
+  @override
+  String notificationProposalApprovedTechnician(String requestNumber) {
+    return 'The tenant and administrator approved your proposed time for work $requestNumber.';
+  }
+
+  @override
+  String notificationAcceptedTenant(String requestNumber, String technician) {
+    return 'Work $requestNumber was accepted by technician $technician.';
+  }
+
+  @override
+  String notificationAcceptedAdmin(String requestNumber, String technician) {
+    return 'Technician $technician accepted work $requestNumber.';
+  }
+
+  @override
+  String notificationRejectedAdmin(String requestNumber) {
+    return 'Technician rejected work $requestNumber. Review the rejection reason and arrange the next action.';
+  }
+
+  @override
+  String notificationTravellingTenant(String technician) {
+    return 'Technician $technician is travelling to your site.';
+  }
+
+  @override
+  String notificationTravellingAdmin(String requestNumber) {
+    return 'Technician is travelling to the site for work $requestNumber.';
+  }
+
+  @override
+  String notificationStartedTenant(String requestNumber) {
+    return 'Work $requestNumber has started.';
+  }
+
+  @override
+  String notificationStartedAdmin(String requestNumber) {
+    return 'Work $requestNumber has started.';
+  }
+
+  @override
+  String notificationBlockedTenant(String reason) {
+    return 'Work is blocked. Reason: $reason';
+  }
+
+  @override
+  String notificationBlockedAdmin(String requestNumber) {
+    return 'Work $requestNumber is blocked and requires follow-up.';
+  }
+
+  @override
+  String notificationCompletedTenant(String requestNumber) {
+    return 'Work $requestNumber is complete. Please review and accept or reject it.';
+  }
+
+  @override
+  String notificationCompletedAdmin(String requestNumber, String minutes) {
+    return 'Work $requestNumber awaits confirmation. Time taken: $minutes min.';
+  }
+
+  @override
+  String notificationTenantAcceptedAdmin(String requestNumber) {
+    return 'Tenant accepted work $requestNumber. Administrator approval is required to close it.';
+  }
+
+  @override
+  String notificationTenantRejectedAdmin(String requestNumber) {
+    return 'Tenant rejected completed work $requestNumber; further action is required.';
+  }
+
+  @override
+  String notificationAdminApproved(String requestNumber) {
+    return 'Administrator approved completion of work $requestNumber.';
+  }
+
+  @override
+  String notificationClosedTenant(String requestNumber) {
+    return 'Work order $requestNumber is closed after both approvals.';
+  }
+
+  @override
+  String notificationClosedAdmin(String requestNumber) {
+    return 'Work order $requestNumber is closed after tenant acceptance and admin approval.';
+  }
+
+  @override
+  String notificationReopenedTenant(String requestNumber) {
+    return 'Work order $requestNumber has been reopened and sent for review.';
+  }
+
+  @override
+  String notificationReopenedAdmin(String requestNumber) {
+    return 'Work order $requestNumber was reopened and requires review.';
+  }
+
+  @override
   String get assignedJobs => 'Assigned';
 
   @override

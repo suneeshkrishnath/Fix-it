@@ -4,6 +4,8 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/otp_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/move_out/presentation/screens/move_out_screen.dart';
+import '../features/notifications/domain/models/demo_notification.dart';
+import '../features/notifications/presentation/screens/notification_center_screen.dart';
 import '../features/profile/presentation/screens/resident_profile_screen.dart';
 import '../features/requests/domain/models/service_request.dart';
 import '../features/requests/presentation/screens/closed_cases_screen.dart';
@@ -24,6 +26,7 @@ abstract final class AppRoutes {
   static const requests = '/requests';
   static String requestDetails(String requestId) => '/requests/$requestId';
   static const closedCases = '/cases/closed';
+  static const notifications = '/notifications';
   static const history = '/history';
   static const moveOut = '/move-out';
   static const profile = '/profile';
@@ -102,6 +105,17 @@ GoRouter buildAppRouter({
     GoRoute(
       path: AppRoutes.closedCases,
       builder: (context, state) => const ClosedCasesScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.notifications,
+      builder: (context, state) {
+        final audienceName = state.uri.queryParameters['audience'];
+        final audience = NotificationAudience.values.firstWhere(
+          (value) => value.name == audienceName,
+          orElse: () => NotificationAudience.tenant,
+        );
+        return NotificationCenterScreen(initialAudience: audience);
+      },
     ),
   ],
 );

@@ -878,6 +878,198 @@ abstract class AppLocalizations {
   /// **'Event time'**
   String get workflowEventTime;
 
+  /// No description provided for @notificationCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationCenter;
+
+  /// No description provided for @notificationRequestLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get notificationRequestLabel;
+
+  /// No description provided for @notificationExamplesNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample notification previews only; push delivery is not enabled.'**
+  String get notificationExamplesNotice;
+
+  /// No description provided for @notificationAudienceTenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant'**
+  String get notificationAudienceTenant;
+
+  /// No description provided for @notificationAudienceTechnician.
+  ///
+  /// In en, this message translates to:
+  /// **'Technician'**
+  String get notificationAudienceTechnician;
+
+  /// No description provided for @notificationAudienceAdminPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin preview'**
+  String get notificationAudienceAdminPreview;
+
+  /// No description provided for @notificationInboxEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sample notifications for this role.'**
+  String get notificationInboxEmpty;
+
+  /// No description provided for @notificationTenantAcceptedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant accepted completed work'**
+  String get notificationTenantAcceptedTitle;
+
+  /// No description provided for @notificationTenantRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant rejected completed work'**
+  String get notificationTenantRejectedTitle;
+
+  /// No description provided for @notificationAdminApprovedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator approved completion'**
+  String get notificationAdminApprovedTitle;
+
+  /// No description provided for @notificationProposalDecisionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment proposal decision'**
+  String get notificationProposalDecisionTitle;
+
+  /// No description provided for @notificationWorkRejectedTechnician.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rejection for work {requestNumber} is under administrator review.'**
+  String notificationWorkRejectedTechnician(String requestNumber);
+
+  /// No description provided for @notificationTechnicianAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'You have been assigned work {requestNumber}.'**
+  String notificationTechnicianAssigned(String requestNumber);
+
+  /// No description provided for @notificationProposalApprovedTechnician.
+  ///
+  /// In en, this message translates to:
+  /// **'The tenant and administrator approved your proposed time for work {requestNumber}.'**
+  String notificationProposalApprovedTechnician(String requestNumber);
+
+  /// No description provided for @notificationAcceptedTenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Work {requestNumber} was accepted by technician {technician}.'**
+  String notificationAcceptedTenant(String requestNumber, String technician);
+
+  /// No description provided for @notificationAcceptedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Technician {technician} accepted work {requestNumber}.'**
+  String notificationAcceptedAdmin(String requestNumber, String technician);
+
+  /// No description provided for @notificationRejectedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Technician rejected work {requestNumber}. Review the rejection reason and arrange the next action.'**
+  String notificationRejectedAdmin(String requestNumber);
+
+  /// No description provided for @notificationTravellingTenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Technician {technician} is travelling to your site.'**
+  String notificationTravellingTenant(String technician);
+
+  /// No description provided for @notificationTravellingAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Technician is travelling to the site for work {requestNumber}.'**
+  String notificationTravellingAdmin(String requestNumber);
+
+  /// No description provided for @notificationStartedTenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Work {requestNumber} has started.'**
+  String notificationStartedTenant(String requestNumber);
+
+  /// No description provided for @notificationStartedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Work {requestNumber} has started.'**
+  String notificationStartedAdmin(String requestNumber);
+
+  /// No description provided for @notificationBlockedTenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Work is blocked. Reason: {reason}'**
+  String notificationBlockedTenant(String reason);
+
+  /// No description provided for @notificationBlockedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Work {requestNumber} is blocked and requires follow-up.'**
+  String notificationBlockedAdmin(String requestNumber);
+
+  /// No description provided for @notificationCompletedTenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Work {requestNumber} is complete. Please review and accept or reject it.'**
+  String notificationCompletedTenant(String requestNumber);
+
+  /// No description provided for @notificationCompletedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Work {requestNumber} awaits confirmation. Time taken: {minutes} min.'**
+  String notificationCompletedAdmin(String requestNumber, String minutes);
+
+  /// No description provided for @notificationTenantAcceptedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant accepted work {requestNumber}. Administrator approval is required to close it.'**
+  String notificationTenantAcceptedAdmin(String requestNumber);
+
+  /// No description provided for @notificationTenantRejectedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant rejected completed work {requestNumber}; further action is required.'**
+  String notificationTenantRejectedAdmin(String requestNumber);
+
+  /// No description provided for @notificationAdminApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator approved completion of work {requestNumber}.'**
+  String notificationAdminApproved(String requestNumber);
+
+  /// No description provided for @notificationClosedTenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Work order {requestNumber} is closed after both approvals.'**
+  String notificationClosedTenant(String requestNumber);
+
+  /// No description provided for @notificationClosedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Work order {requestNumber} is closed after tenant acceptance and admin approval.'**
+  String notificationClosedAdmin(String requestNumber);
+
+  /// No description provided for @notificationReopenedTenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Work order {requestNumber} has been reopened and sent for review.'**
+  String notificationReopenedTenant(String requestNumber);
+
+  /// No description provided for @notificationReopenedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Work order {requestNumber} was reopened and requires review.'**
+  String notificationReopenedAdmin(String requestNumber);
+
   /// No description provided for @assignedJobs.
   ///
   /// In en, this message translates to:

@@ -431,6 +431,145 @@ class AppLocalizationsAr extends AppLocalizations {
   String get workflowEventTime => 'وقت الحدث';
 
   @override
+  String get notificationCenter => 'الإشعارات';
+
+  @override
+  String get notificationRequestLabel => 'الطلب';
+
+  @override
+  String get notificationExamplesNotice =>
+      'معاينات إشعارات تجريبية فقط؛ لا يتم إرسال إشعارات فعلية.';
+
+  @override
+  String get notificationAudienceTenant => 'المستأجر';
+
+  @override
+  String get notificationAudienceTechnician => 'الفني';
+
+  @override
+  String get notificationAudienceAdminPreview => 'معاينة المسؤول';
+
+  @override
+  String get notificationInboxEmpty => 'لا توجد إشعارات تجريبية لهذا الدور.';
+
+  @override
+  String get notificationTenantAcceptedTitle => 'قبِل المستأجر العمل المكتمل';
+
+  @override
+  String get notificationTenantRejectedTitle => 'رفض المستأجر العمل المكتمل';
+
+  @override
+  String get notificationAdminApprovedTitle => 'وافق المسؤول على الإكمال';
+
+  @override
+  String get notificationProposalDecisionTitle => 'قرار اقتراح الموعد';
+
+  @override
+  String notificationWorkRejectedTechnician(String requestNumber) {
+    return 'رفضك للعمل $requestNumber قيد مراجعة المسؤول.';
+  }
+
+  @override
+  String notificationTechnicianAssigned(String requestNumber) {
+    return 'أُسند إليك العمل $requestNumber.';
+  }
+
+  @override
+  String notificationProposalApprovedTechnician(String requestNumber) {
+    return 'وافق المستأجر والمسؤول على الموعد المقترح للعمل $requestNumber.';
+  }
+
+  @override
+  String notificationAcceptedTenant(String requestNumber, String technician) {
+    return 'تم قبول العمل $requestNumber بواسطة الفني $technician.';
+  }
+
+  @override
+  String notificationAcceptedAdmin(String requestNumber, String technician) {
+    return 'قبل الفني $technician العمل $requestNumber.';
+  }
+
+  @override
+  String notificationRejectedAdmin(String requestNumber) {
+    return 'رفض الفني العمل $requestNumber. راجع سبب الرفض وحدد الإجراء التالي.';
+  }
+
+  @override
+  String notificationTravellingTenant(String technician) {
+    return 'الفني $technician في الطريق إلى موقعك.';
+  }
+
+  @override
+  String notificationTravellingAdmin(String requestNumber) {
+    return 'الفني في الطريق إلى موقع العمل $requestNumber.';
+  }
+
+  @override
+  String notificationStartedTenant(String requestNumber) {
+    return 'بدأ العمل $requestNumber.';
+  }
+
+  @override
+  String notificationStartedAdmin(String requestNumber) {
+    return 'بدأ العمل $requestNumber.';
+  }
+
+  @override
+  String notificationBlockedTenant(String reason) {
+    return 'العمل متوقف. السبب: $reason';
+  }
+
+  @override
+  String notificationBlockedAdmin(String requestNumber) {
+    return 'العمل $requestNumber متوقف ويتطلب المتابعة.';
+  }
+
+  @override
+  String notificationCompletedTenant(String requestNumber) {
+    return 'اكتمل العمل $requestNumber. يرجى مراجعته وقبوله أو رفضه.';
+  }
+
+  @override
+  String notificationCompletedAdmin(String requestNumber, String minutes) {
+    return 'العمل $requestNumber بانتظار التأكيد. الوقت المستغرق: $minutes دقيقة.';
+  }
+
+  @override
+  String notificationTenantAcceptedAdmin(String requestNumber) {
+    return 'قبل المستأجر العمل $requestNumber. يلزم اعتماد المسؤول لإغلاقه.';
+  }
+
+  @override
+  String notificationTenantRejectedAdmin(String requestNumber) {
+    return 'رفض المستأجر العمل المكتمل $requestNumber؛ يلزم اتخاذ إجراء.';
+  }
+
+  @override
+  String notificationAdminApproved(String requestNumber) {
+    return 'وافق المسؤول على إكمال العمل $requestNumber.';
+  }
+
+  @override
+  String notificationClosedTenant(String requestNumber) {
+    return 'أُغلق الطلب $requestNumber بعد موافقة الطرفين.';
+  }
+
+  @override
+  String notificationClosedAdmin(String requestNumber) {
+    return 'أُغلق الطلب $requestNumber بعد قبول المستأجر واعتماد المسؤول.';
+  }
+
+  @override
+  String notificationReopenedTenant(String requestNumber) {
+    return 'أُعيد فتح الطلب $requestNumber وأُرسل للمراجعة.';
+  }
+
+  @override
+  String notificationReopenedAdmin(String requestNumber) {
+    return 'أُعيد فتح الطلب $requestNumber ويتطلب المراجعة.';
+  }
+
+  @override
   String get assignedJobs => 'المهام المسندة';
 
   @override

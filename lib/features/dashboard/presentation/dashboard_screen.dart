@@ -19,6 +19,12 @@ class DashboardScreen extends ConsumerWidget {
         title: Text(l10n.appName),
         actions: [
           IconButton(
+            key: const Key('resident-notifications-action'),
+            tooltip: l10n.notificationCenter,
+            onPressed: () => context.push(AppRoutes.notifications),
+            icon: const Icon(Icons.notifications_outlined),
+          ),
+          IconButton(
             tooltip: l10n.signOut,
             onPressed: () async {
               await ref.read(authControllerProvider.notifier).signOut();

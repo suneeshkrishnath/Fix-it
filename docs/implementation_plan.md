@@ -18,7 +18,7 @@
 | 8 | Move-out | Done | Local request submission and status tracking; no backend review updates. |
 | 9 | Shared backend and administrator tablet app | On Hold | Separate Android tablet module; admin review/reassignment and approval required before closure; tenant may reopen within 24 hours. |
 | 10 | Technician module in shared phone app | In Progress | Local login, jobs, and workflow-example tab are implemented; live status transitions, notifications, elapsed-time billing/history, and dual-approval completion are Planned. |
-| 11 | Notifications | Planned | Provider to be selected. |
+| 11 | Notifications | In Progress | Local sample inbox for tenant, technician, and admin-preview audiences; push delivery/provider integration remains Planned. |
 | 12 | Production deployment | Planned | Phone app, tablet app, and shared backend. |
 
 ---
@@ -578,11 +578,11 @@ The detailed status and notification workflow above is planned and is not implem
 # Stage 11
 # Notification System
 
-Status: **Planned**
+Status: **In Progress** (local sample notification center implemented; real push delivery is not implemented)
 
 ## Goal
 
-Notify users about important events.
+Preview role-specific notifications for important events; later connect these events to the approved push provider and shared backend.
 
 ## Events
 

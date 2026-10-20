@@ -301,6 +301,31 @@ void main() {
     }
   });
 
+  testWidgets('notification center previews tenant and admin examples', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(
+            _FakeAuthRepository()..resident = _demoResident,
+          ),
+        ],
+        child: const FixItApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('resident-notifications-action')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Notifications'), findsOneWidget);
+    expect(find.byKey(const Key('notification-tenant-reopened')), findsOneWidget);
+
+    await tester.tap(find.text('Admin preview'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('notification-admin-reopened')), findsOneWidget);
+  });
+
   testWidgets('service request requires a description', (tester) async {
     await tester.pumpWidget(
       ProviderScope(

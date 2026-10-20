@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations_extension.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../l10n/service_localization.dart';
+import '../../../notifications/domain/models/demo_notification.dart';
 import '../../data/repositories/mock_technician_workflow_repository.dart';
 import '../../domain/models/technician_workflow_sample.dart';
 import '../../../requests/domain/models/service_request.dart';
@@ -25,6 +26,14 @@ class TechnicianJobsScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(l10n.technicianJobs),
           actions: [
+            IconButton(
+              key: const Key('technician-notifications-action'),
+              tooltip: l10n.notificationCenter,
+              onPressed: () => context.push(
+                '/notifications?audience=${NotificationAudience.technician.name}',
+              ),
+              icon: const Icon(Icons.notifications_outlined),
+            ),
             IconButton(
               tooltip: l10n.signOut,
               onPressed: () async {

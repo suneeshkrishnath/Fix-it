@@ -84,6 +84,8 @@ To build, install, and launch in one step, use `flutter run -d <device-id>`.
 7. **Resident profile** displays mock tenant, apartment, tenancy, and contract details. **Move-out request** accepts a local request and shows its saved workflow status.
 8. Use **Sign out** in the dashboard app bar to clear the saved mock session.
 
+The dashboard notification icon opens a sample tenant notification inbox. It can also preview technician and administrator messages. These are local examples, not delivered push notifications.
+
 The current request categories are Plumbing, Electrical, Maintenance, Cleaning, Installation, Home Services, and Electrical Upgrade.
 
 ## Technician App Walkthrough
@@ -94,6 +96,7 @@ The current request categories are Plumbing, Electrical, Maintenance, Cleaning, 
 4. For an active job, accept the assignment, start work, and mark it complete with comments. Completion moves it to **Awaiting tenant confirmation**; it does not close the request.
 5. Use **Propose new time** to submit an appointment change. Sign in as the resident and open that request to approve or reject the proposal.
 6. The tenant can confirm and close technician-completed work, then reopen it within 24 hours after closure.
+7. Use the notification icon to view sample technician notices.
 
 Sample technician assignments are stored alongside resident requests on the device. They are demonstrations, not real jobs.
 
