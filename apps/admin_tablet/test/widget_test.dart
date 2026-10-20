@@ -85,4 +85,46 @@ void main() {
       expect(find.textContaining('A-302'), findsNWidgets(2));
     },
   );
+
+  testWidgets('admin can add technician and permission role', (tester) async {
+    await tester.pumpWidget(const FixItAdminApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Technicians'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('add-technician-action')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('technician-login-id-field')),
+      'tech-003',
+    );
+    await tester.enterText(
+      find.byKey(const Key('technician-name-field')),
+      'Saba Khan',
+    );
+    await tester.enterText(
+      find.byKey(const Key('technician-phone-field')),
+      '+971 50 222 3333',
+    );
+    await tester.enterText(
+      find.byKey(const Key('technician-specialty-field')),
+      'HVAC',
+    );
+    await tester.tap(find.byKey(const Key('save-technician')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Saba Khan'), findsOneWidget);
+
+    await tester.tap(find.text('Roles and permissions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('add-role-action')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('role-name-field')),
+      'Campus Viewer',
+    );
+    await tester.tap(find.text('View operational reports'));
+    await tester.tap(find.byKey(const Key('save-role')));
+    await tester.pumpAndSettle();
+    expect(find.text('Campus Viewer'), findsOneWidget);
+  });
 }

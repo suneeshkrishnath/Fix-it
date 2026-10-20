@@ -6,6 +6,8 @@ import 'features/properties/data/repositories/mock_property_repository.dart';
 import 'features/properties/presentation/property_management_screen.dart';
 import 'features/tenants/data/repositories/mock_tenant_repository.dart';
 import 'features/tenants/presentation/tenant_management_screen.dart';
+import 'features/technicians/data/repositories/mock_technician_management_repository.dart';
+import 'features/technicians/presentation/technician_management_screen.dart';
 
 enum AdminSection { overview, requests, properties, residents, technicians }
 
@@ -20,6 +22,7 @@ class _AdminShellState extends State<AdminShell> {
   AdminSection _section = AdminSection.overview;
   final _propertyRepository = MockPropertyRepository();
   final _tenantRepository = MockTenantRepository();
+  final _technicianRepository = MockTechnicianManagementRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +76,9 @@ class _AdminShellState extends State<AdminShell> {
       properties: _propertyRepository,
       tenants: _tenantRepository,
     ),
-    AdminSection.technicians => const AdminPlaceholder(
-      title: 'Technicians and roles',
-      description: 'Manage technician accounts, specialties, availability, roles, and permissions.',
-      icon: Icons.engineering_outlined,
-      key: Key('technicians-section'),
+    AdminSection.technicians => TechnicianManagementScreen(
+      key: const Key('technicians-section'),
+      repository: _technicianRepository,
     ),
   };
 }

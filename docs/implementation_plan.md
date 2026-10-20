@@ -16,7 +16,7 @@
 | 7 | Service history | Done | Local history and filters. |
 | 7A | Resident profile and case workflow mocks | Done | Mock tenant/property profile, case timeline, technician details, and closed cases. |
 | 8 | Move-out | Done | Local request submission and status tracking; no backend review updates. |
-| 9 | Shared backend and administrator tablet app | On Hold | Separate Android tablet module; admin review/reassignment and approval required before closure; tenant may reopen within 24 hours. |
+| 9 | Shared backend and administrator tablet app | In Progress | Tablet UI prototypes for properties, tenants, technicians, and roles; shared backend/auth remains on hold. |
 | 10 | Technician module in shared phone app | In Progress | Local login, jobs, and workflow-example tab are implemented; live status transitions, notifications, elapsed-time billing/history, and dual-approval completion are Planned. |
 | 11 | Notifications | In Progress | Local sample inbox for tenant, technician, and admin-preview audiences; push delivery/provider integration remains Planned. |
 | 12 | Production deployment | Planned | Phone app, tablet app, and shared backend. |
@@ -470,7 +470,7 @@ GET /api/moveout/{id}
 # Stage 9
 # Shared Operations Backend and Administrator Tablet App
 
-Status: **On Hold** (implementation paused; backend and tablet app are not in the current repository)
+Status: **In Progress** (local tablet prototype exists; shared backend and production authentication remain on hold)
 
 ## Goal
 
