@@ -5,7 +5,7 @@
 - This folder documents the planned administrator module for Fix-it.
 - The admin module is a separate Android tablet app, not an admin mode inside the resident/technician phone app.
 - Proposed packaging is a sibling Flutter app in the same repository; confirm app identity, workspace, and shared-code boundaries before scaffolding.
-- The admin tablet prototype is in progress. The shared backend, server-enforced roles, and notification delivery are not implemented; do not describe local mock behavior as production-ready.
+- The admin tablet shell and local property-hierarchy prototype are implemented. Backend integration, persistent property storage, account management, and notification delivery are not implemented; do not describe local mock behavior as production-ready.
 
 ## Before Implementation
 

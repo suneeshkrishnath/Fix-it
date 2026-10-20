@@ -13,8 +13,8 @@ Implementation order is dependency-driven: establish the shared backend and auth
 | A1 | Confirm tablet-app packaging, user roles, permissions, and workflows | Done | Separate Flutter Android tablet app in this repo; unique application ID; local prototype scope approved |
 | A2 | Define shared property, identity, request, assignment, appointment, and audit data | Done | Backend-neutral entity contract recorded in `admin_data_contract.md` |
 | A3 | Implement backend authentication, role enforcement, and audit foundation | On Hold | Backend stack, auth provider, hosting, and security policy need approval; prototype will use local mock data only |
-| A4 | Build tablet app foundation, navigation, responsive shell, and localization | Planned | Tablet layouts and accessibility baseline tested |
-| A5 | Campus, building/tower, and apartment management | Planned | Search, create, edit, deactivate, validation, and relationship rules work |
+| A4 | Build tablet app foundation, navigation, responsive shell, and localization | Done | Separate Android app identity, tablet navigation shell, mock operations overview, and distinct theme |
+| A5 | Campus, building/tower, and apartment management | Done (local prototype) | In-memory sample hierarchy supports search, filters, add/edit, and safe deactivation; no persistence/backend sync |
 | A6 | Resident/tenant and tenancy management | Planned | Residents link to apartments and tenancy; protected fields follow role rules |
 | A7 | Technician accounts, specialties, availability, roles, and permissions | Planned | Accounts can be managed and changes are auditable |
 | A8 | Request review and technician assignment/reassignment | Planned | Queue, filters, decision reasons, assignment, and status history work end-to-end |

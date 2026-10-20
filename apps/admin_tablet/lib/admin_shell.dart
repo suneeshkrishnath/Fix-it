@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'admin_dashboard.dart';
 import 'admin_theme.dart';
+import 'features/properties/data/repositories/mock_property_repository.dart';
+import 'features/properties/presentation/property_management_screen.dart';
 
 enum AdminSection { overview, requests, properties, residents, technicians }
 
@@ -14,6 +16,7 @@ class AdminShell extends StatefulWidget {
 
 class _AdminShellState extends State<AdminShell> {
   AdminSection _section = AdminSection.overview;
+  final _propertyRepository = MockPropertyRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +29,8 @@ class _AdminShellState extends State<AdminShell> {
               NavigationRail(
                 extended: MediaQuery.sizeOf(context).width >= 1180,
                 selectedIndex: _section.index,
-                onDestinationSelected: (index) => setState(
-                  () => _section = AdminSection.values[index],
-                ),
+                onDestinationSelected: (index) =>
+                    setState(() => _section = AdminSection.values[index]),
                 leading: const _BrandBlock(),
                 destinations: [
                   for (final section in AdminSection.values)
@@ -55,29 +57,23 @@ class _AdminShellState extends State<AdminShell> {
     AdminSection.overview => const AdminDashboard(),
     AdminSection.requests => const AdminPlaceholder(
       title: 'Request queue',
-      description:
-          'Review, assign, and follow work orders. Shared request data is planned for Stage 9.',
+      description: 'Review, assign, and follow work orders. Shared request data is planned for Stage 9.',
       icon: Icons.assignment_outlined,
       key: Key('requests-section'),
     ),
-    AdminSection.properties => const AdminPlaceholder(
-      title: 'Property hierarchy',
-      description:
-          'Manage campuses, buildings, towers, and apartments. CRUD workflows are planned.',
-      icon: Icons.apartment_outlined,
-      key: Key('properties-section'),
+    AdminSection.properties => PropertyManagementScreen(
+      key: const Key('properties-section'),
+      repository: _propertyRepository,
     ),
     AdminSection.residents => const AdminPlaceholder(
       title: 'Residents and tenancy',
-      description:
-          'Add tenants from a selected apartment and manage tenancy details. Local sample data only.',
+      description: 'Add tenants from a selected apartment and manage tenancy details. Local sample data only.',
       icon: Icons.people_outline,
       key: Key('residents-section'),
     ),
     AdminSection.technicians => const AdminPlaceholder(
       title: 'Technicians and roles',
-      description:
-          'Manage technician accounts, specialties, availability, roles, and permissions.',
+      description: 'Manage technician accounts, specialties, availability, roles, and permissions.',
       icon: Icons.engineering_outlined,
       key: Key('technicians-section'),
     ),
