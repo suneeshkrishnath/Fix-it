@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'admin_dashboard.dart';
 import 'admin_theme.dart';
+import 'features/requests/data/repositories/mock_admin_request_repository.dart';
+import 'features/requests/presentation/requests_management_screen.dart';
 import 'features/properties/data/repositories/mock_property_repository.dart';
 import 'features/properties/presentation/property_management_screen.dart';
 import 'features/tenants/data/repositories/mock_tenant_repository.dart';
@@ -23,6 +25,7 @@ class _AdminShellState extends State<AdminShell> {
   final _propertyRepository = MockPropertyRepository();
   final _tenantRepository = MockTenantRepository();
   final _technicianRepository = MockTechnicianManagementRepository();
+  final _requestRepository = MockAdminRequestRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +64,10 @@ class _AdminShellState extends State<AdminShell> {
 
   Widget _sectionContent(AdminSection section) => switch (section) {
     AdminSection.overview => const AdminDashboard(),
-    AdminSection.requests => const AdminPlaceholder(
-      title: 'Request queue',
-      description: 'Review, assign, and follow work orders. Shared request data is planned for Stage 9.',
-      icon: Icons.assignment_outlined,
-      key: Key('requests-section'),
+    AdminSection.requests => RequestsManagementScreen(
+      key: const Key('requests-section'),
+      requests: _requestRepository,
+      technicians: _technicianRepository,
     ),
     AdminSection.properties => PropertyManagementScreen(
       key: const Key('properties-section'),

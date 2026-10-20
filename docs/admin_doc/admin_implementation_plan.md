@@ -17,7 +17,7 @@ Implementation order is dependency-driven: establish the shared backend and auth
 | A5 | Campus, building/tower, and apartment management | Done (local prototype) | In-memory sample hierarchy supports search, filters, add/edit, and safe deactivation; no persistence/backend sync |
 | A6 | Resident/tenant and tenancy management | Done (local prototype) | Add tenants from active apartments with tenancy dates; agreement attachment is a placeholder; data is in-memory only |
 | A7 | Technician accounts, specialties, availability, roles, and permissions | Done (local prototype) | Sample technician records and editable local role permissions; no authentication or server enforcement |
-| A8 | Request review and technician assignment/reassignment | Planned | Queue, filters, decision reasons, assignment, and status history work end-to-end |
+| A8 | Request review and technician assignment/reassignment | Done (local prototype) | Sample queue supports search/status filters, reasoned review decisions, technician assignment/reassignment, and local status history; no backend synchronization |
 | A9 | Appointment scheduling and dual approval of proposed changes | Planned | Current appointment remains until tenant and admin both approve |
 | A10 | Work status review, blockers, completion approval, closure, and reopening | Planned | Full lifecycle and 24-hour reopen rule pass API/UI tests |
 | A11 | Notification integration and operational reports | Planned | Provider selected; events, recipients, retries, and reports validated |

@@ -127,4 +127,68 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Campus Viewer'), findsOneWidget);
   });
+
+  testWidgets('admin reviews, assigns, and reassigns a request with history', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const FixItAdminApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+    expect(find.text('Review and assign work orders'), findsOneWidget);
+    expect(find.text('REQ-1042'), findsWidgets);
+
+    await tester.tap(find.byKey(const Key('request-search')));
+    await tester.enterText(find.byKey(const Key('request-search')), 'REQ-1042');
+    await tester.pumpAndSettle();
+    expect(find.text('REQ-1042'), findsWidgets);
+    expect(find.text('REQ-1041'), findsNothing);
+
+    await tester.ensureVisible(find.byKey(const Key('approve-request-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('approve-request-action')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('request-decision-reason-field')),
+      'Request details verified.',
+    );
+    await tester.tap(find.byKey(const Key('save-request-decision')));
+    await tester.pumpAndSettle();
+    expect(find.text('Ready to assign'), findsOneWidget);
+
+    await tester.ensureVisible(find.byKey(const Key('assign-technician-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('assign-technician-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('request-technician-field')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Rashid Al Mansoori').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('save-request-assignment')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Assigned technician: Rashid Al Mansoori'),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(find.byKey(const Key('reassign-technician-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('reassign-technician-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('request-technician-field')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Imran Qureshi').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('assignment-reason-field')),
+      'Specialty coverage changed.',
+    );
+    await tester.tap(find.byKey(const Key('save-request-assignment')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Assigned technician: Imran Qureshi'), findsOneWidget);
+    expect(find.text('Technician reassigned'), findsOneWidget);
+    expect(find.text('Reason: Specialty coverage changed.'), findsOneWidget);
+  });
 }
