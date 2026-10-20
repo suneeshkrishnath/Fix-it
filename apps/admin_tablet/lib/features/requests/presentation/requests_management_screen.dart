@@ -193,26 +193,30 @@ class _RequestsManagementScreenState extends State<RequestsManagementScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        request.requestNumber,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AdminTheme.ink,
-                          fontWeight: FontWeight.w700,
-                        ),
+                    Text(
+                      request.requestNumber,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AdminTheme.ink,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
+                    const SizedBox(height: 4),
                     _StatusLabel(status: request.status),
                   ],
                 ),
                 const SizedBox(height: 12),
                 _RequestFacts(request: request),
-                if (request.status == WorkRequestStatus.assigned) ...[
+                if (request.scheduledAt != null ||
+                    request.status == WorkRequestStatus.assigned) ...[
                   const SizedBox(height: 14),
                   _appointmentSection(request),
+                ],
+                if (_hasWorkLifecycle(request.status)) ...[
+                  const SizedBox(height: 14),
+                  _workStatusSection(request),
                 ],
                 const SizedBox(height: 12),
                 Text(
@@ -241,6 +245,260 @@ class _RequestsManagementScreenState extends State<RequestsManagementScreen> {
             ),
           ),
   );
+
+  Widget _workStatusSection(AdminRequestRecord request) {
+    final reopenWindowOpen =
+        request.closedAt != null &&
+        DateTime.now().isBefore(
+          request.closedAt!.add(const Duration(hours: 24)),
+        );
+    final actions = switch (request.status) {
+      WorkRequestStatus.assigned || WorkRequestStatus.reopened => [
+        _workAction(
+          key: 'work-mark-travelling',
+          label: 'Mark travelling',
+          icon: Icons.directions_car_outlined,
+          onPressed: () => widget.requests.markTravelling(request.id),
+        ),
+      ],
+      WorkRequestStatus.travelling => [
+        _workAction(
+          key: 'work-start',
+          label: 'Start work',
+          icon: Icons.play_arrow,
+          onPressed: () => widget.requests.startWork(request.id),
+        ),
+      ],
+      WorkRequestStatus.workStarted => [
+        _workAction(
+          key: 'work-block',
+          label: 'Block work',
+          icon: Icons.pause_circle_outline,
+          onPressed: () => _blockWork(request),
+          outlined: true,
+        ),
+        _workAction(
+          key: 'work-complete',
+          label: 'Record completion',
+          icon: Icons.task_alt,
+          onPressed: () => _completeWork(request),
+        ),
+      ],
+      WorkRequestStatus.workBlocked => [
+        _workAction(
+          key: 'work-resume',
+          label: 'Resume work',
+          icon: Icons.play_arrow,
+          onPressed: () => widget.requests.resumeWork(request.id),
+        ),
+      ],
+      WorkRequestStatus.awaitingTenantConfirmation => [
+        _workAction(
+          key: 'tenant-accept-completion',
+          label: 'Simulate tenant acceptance',
+          icon: Icons.thumb_up_outlined,
+          onPressed: () => _recordTenantCompletion(request, accepted: true),
+          outlined: true,
+        ),
+        _workAction(
+          key: 'tenant-reject-completion',
+          label: 'Simulate tenant rejection',
+          icon: Icons.thumb_down_outlined,
+          onPressed: () => _recordTenantCompletion(request, accepted: false),
+          outlined: true,
+        ),
+      ],
+      WorkRequestStatus.awaitingAdminClosureApproval => [
+        _workAction(
+          key: 'admin-approve-closure',
+          label: 'Approve and close',
+          icon: Icons.lock_outline,
+          onPressed: () => _recordClosureDecision(request, approved: true),
+        ),
+        _workAction(
+          key: 'admin-reject-closure',
+          label: 'Reject completion',
+          icon: Icons.undo,
+          onPressed: () => _recordClosureDecision(request, approved: false),
+          outlined: true,
+        ),
+      ],
+      WorkRequestStatus.closed => [
+        if (reopenWindowOpen)
+          _workAction(
+            key: 'tenant-request-reopen',
+            label: 'Simulate tenant reopen',
+            icon: Icons.lock_open_outlined,
+            onPressed: () => _requestReopen(request),
+            outlined: true,
+          )
+        else
+          const Chip(
+            avatar: Icon(Icons.timer_off_outlined, size: 16),
+            label: Text('24-hour reopen window expired'),
+          ),
+      ],
+      WorkRequestStatus.reopenPendingReview => [
+        _workAction(
+          key: 'admin-accept-reopen',
+          label: 'Accept reopening',
+          icon: Icons.lock_open_outlined,
+          onPressed: () => _reviewReopen(request, accepted: true),
+        ),
+        _workAction(
+          key: 'admin-reject-reopen',
+          label: 'Reject reopening',
+          icon: Icons.block_outlined,
+          onPressed: () => _reviewReopen(request, accepted: false),
+          outlined: true,
+        ),
+      ],
+      _ => <Widget>[],
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        Text('Work status', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 6),
+        if (request.travellingAt != null)
+          Text('Travelling: ${_formatDateTime(request.travellingAt!)}'),
+        if (request.workStartedAt != null)
+          Text('Work started: ${_formatDateTime(request.workStartedAt!)}'),
+        if (request.status == WorkRequestStatus.workBlocked)
+          Text('Block reason: ${request.blockReason}'),
+        if (request.closedAt != null) ...[
+          Text('Officially closed: ${_formatDateTime(request.closedAt!)}'),
+          if (request.status == WorkRequestStatus.closed && reopenWindowOpen)
+            Text(
+              'Reopen available until ${_formatDateTime(request.closedAt!.add(const Duration(hours: 24)))}',
+            ),
+        ],
+        if (request.reopenReason != null)
+          Text('Reopen reason: ${request.reopenReason}'),
+        for (var index = 0; index < request.completions.length; index++)
+          _CompletionSummary(
+            completion: request.completions[index],
+            attempt: index + 1,
+          ),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, runSpacing: 8, children: actions),
+        const Divider(),
+      ],
+    );
+  }
+
+  Widget _workAction({
+    required String key,
+    required String label,
+    required IconData icon,
+    required VoidCallback onPressed,
+    bool outlined = false,
+  }) {
+    final iconWidget = Icon(icon);
+    final labelWidget = Text(label);
+    return outlined
+        ? OutlinedButton.icon(
+            key: Key(key),
+            onPressed: onPressed,
+            icon: iconWidget,
+            label: labelWidget,
+          )
+        : FilledButton.icon(
+            key: Key(key),
+            onPressed: onPressed,
+            icon: iconWidget,
+            label: labelWidget,
+          );
+  }
+
+  Future<void> _blockWork(AdminRequestRecord request) async {
+    final reason = await _reasonDialog(
+      title: 'Block work',
+      label: 'Block reason and details',
+    );
+    if (reason == null || !mounted) return;
+    widget.requests.blockWork(request.id, reason);
+  }
+
+  Future<void> _completeWork(AdminRequestRecord request) async {
+    final comments = await _reasonDialog(
+      title: 'Record work completion',
+      label: 'Completion comments',
+    );
+    if (comments == null || !mounted) return;
+    widget.requests.completeWork(request.id, comments);
+  }
+
+  Future<void> _recordTenantCompletion(
+    AdminRequestRecord request, {
+    required bool accepted,
+  }) async {
+    var reason = '';
+    if (!accepted) {
+      final response = await _reasonDialog(
+        title: 'Tenant rejection',
+        label: 'Reason work needs more attention',
+      );
+      if (response == null || !mounted) return;
+      reason = response;
+    }
+    widget.requests.recordTenantCompletionDecision(
+      request.id,
+      accepted: accepted,
+      reason: reason,
+    );
+  }
+
+  Future<void> _recordClosureDecision(
+    AdminRequestRecord request, {
+    required bool approved,
+  }) async {
+    var reason = '';
+    if (!approved) {
+      final response = await _reasonDialog(
+        title: 'Reject completion',
+        label: 'Reason work cannot be closed',
+      );
+      if (response == null || !mounted) return;
+      reason = response;
+    }
+    widget.requests.recordAdminClosureDecision(
+      request.id,
+      approved: approved,
+      reason: reason,
+    );
+  }
+
+  Future<void> _requestReopen(AdminRequestRecord request) async {
+    final reason = await _reasonDialog(
+      title: 'Simulate tenant reopen request',
+      label: 'Reason for reopening',
+    );
+    if (reason == null || !mounted) return;
+    widget.requests.requestReopen(request.id, reason);
+  }
+
+  Future<void> _reviewReopen(
+    AdminRequestRecord request, {
+    required bool accepted,
+  }) async {
+    var reason = '';
+    if (!accepted) {
+      final response = await _reasonDialog(
+        title: 'Reject reopening',
+        label: 'Reason for rejection',
+      );
+      if (response == null || !mounted) return;
+      reason = response;
+    }
+    widget.requests.reviewReopenRequest(
+      request.id,
+      accepted: accepted,
+      reason: reason,
+    );
+  }
 
   Widget _appointmentSection(AdminRequestRecord request) {
     final proposal = request.appointmentProposal;
@@ -524,6 +782,7 @@ class _RequestsManagementScreenState extends State<RequestsManagementScreen> {
           label: Text('Review closed'),
         ),
       ],
+      _ => <Widget>[],
     },
   );
 
@@ -800,6 +1059,35 @@ class _StatusLabel extends StatelessWidget {
   );
 }
 
+class _CompletionSummary extends StatelessWidget {
+  const _CompletionSummary({required this.completion, required this.attempt});
+
+  final WorkCompletionRecord completion;
+  final int attempt;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Completion attempt $attempt'),
+        Text('Comments: ${completion.comments}'),
+        Text('Elapsed work time: ${completion.elapsedWorkMinutes} min'),
+        Text(
+          'Tenant decision: ${_completionDecisionLabel(completion.tenantDecision)}',
+        ),
+        if (completion.tenantReason != null)
+          Text('Tenant reason: ${completion.tenantReason}'),
+        if (completion.adminApprovedAt != null)
+          Text(
+            'Admin approved: ${_formatDateTime(completion.adminApprovedAt!)}',
+          ),
+      ],
+    ),
+  );
+}
+
 class _LocalDataBadge extends StatelessWidget {
   const _LocalDataBadge();
 
@@ -830,4 +1118,24 @@ String _decisionLabel(AppointmentDecision decision) => switch (decision) {
   AppointmentDecision.pending => 'Pending',
   AppointmentDecision.approved => 'Approved',
   AppointmentDecision.rejected => 'Rejected',
+};
+
+String _completionDecisionLabel(CompletionDecision decision) =>
+    switch (decision) {
+      CompletionDecision.pending => 'Pending',
+      CompletionDecision.accepted => 'Accepted',
+      CompletionDecision.rejected => 'Rejected',
+    };
+
+bool _hasWorkLifecycle(WorkRequestStatus status) => switch (status) {
+  WorkRequestStatus.assigned ||
+  WorkRequestStatus.travelling ||
+  WorkRequestStatus.workStarted ||
+  WorkRequestStatus.workBlocked ||
+  WorkRequestStatus.awaitingTenantConfirmation ||
+  WorkRequestStatus.awaitingAdminClosureApproval ||
+  WorkRequestStatus.closed ||
+  WorkRequestStatus.reopenPendingReview ||
+  WorkRequestStatus.reopened => true,
+  _ => false,
 };

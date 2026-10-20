@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:admin_tablet/main.dart';
+import 'package:admin_tablet/features/requests/data/repositories/mock_admin_request_repository.dart';
+import 'package:admin_tablet/features/requests/domain/models/admin_request_records.dart';
 
 void main() {
   testWidgets('admin tablet opens overview with labeled sample data', (
@@ -275,4 +277,131 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('admin reviews work, closes, and accepts a timely reopen', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const FixItAdminApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Requests'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('request-row-REQ-1038')));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byKey(const Key('work-mark-travelling')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('work-mark-travelling')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('work-start')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('work-start')));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byKey(const Key('work-block')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('work-block')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('request-decision-reason-field')),
+      'Waiting for a replacement part.',
+    );
+    await tester.tap(find.byKey(const Key('save-request-decision')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Block reason: Waiting for a replacement part.'),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(find.byKey(const Key('work-resume')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('work-resume')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('work-complete')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('work-complete')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('request-decision-reason-field')),
+      'Replaced the valve and tested for leaks.',
+    );
+    await tester.tap(find.byKey(const Key('save-request-decision')));
+    await tester.pumpAndSettle();
+    expect(find.text('Elapsed work time: 0 min'), findsOneWidget);
+
+    await tester.ensureVisible(
+      find.byKey(const Key('tenant-accept-completion')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('tenant-accept-completion')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('admin-approve-closure')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('admin-approve-closure')));
+    await tester.pumpAndSettle();
+    expect(find.text('Closed'), findsOneWidget);
+
+    await tester.ensureVisible(find.byKey(const Key('tenant-request-reopen')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('tenant-request-reopen')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('request-decision-reason-field')),
+      'The leak returned the next morning.',
+    );
+    await tester.tap(find.byKey(const Key('save-request-decision')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Reopen reason: The leak returned the next morning.'),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(find.byKey(const Key('admin-accept-reopen')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('admin-accept-reopen')));
+    await tester.pumpAndSettle();
+    expect(find.text('Reopened'), findsOneWidget);
+  });
+
+  test('request reopening is rejected after the 24-hour deadline', () {
+    final repository = MockAdminRequestRepository();
+    _closeSampleRequest(repository);
+    final closedRequest = repository.requests.singleWhere(
+      (request) => request.requestNumber == 'REQ-1038',
+    );
+    final deadline = closedRequest.closedAt!.add(const Duration(hours: 24));
+
+    expect(
+      () => repository.requestReopen(
+        closedRequest.id,
+        'Too late to reopen.',
+        now: deadline.add(const Duration(microseconds: 1)),
+      ),
+      throwsStateError,
+    );
+    expect(closedRequest.status, WorkRequestStatus.closed);
+  });
+}
+
+void _closeSampleRequest(MockAdminRequestRepository repository) {
+  final base = DateTime(2026, 10, 20, 9);
+  repository.markTravelling('request-1038', now: base);
+  repository.startWork(
+    'request-1038',
+    now: base.add(const Duration(minutes: 5)),
+  );
+  repository.completeWork(
+    'request-1038',
+    'Repair complete.',
+    now: base.add(const Duration(minutes: 25)),
+  );
+  repository.recordTenantCompletionDecision(
+    'request-1038',
+    accepted: true,
+    now: base.add(const Duration(minutes: 26)),
+  );
+  repository.recordAdminClosureDecision(
+    'request-1038',
+    approved: true,
+    now: base.add(const Duration(minutes: 27)),
+  );
 }

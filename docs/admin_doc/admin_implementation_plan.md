@@ -19,7 +19,7 @@ Implementation order is dependency-driven: establish the shared backend and auth
 | A7 | Technician accounts, specialties, availability, roles, and permissions | Done (local prototype) | Sample technician records and editable local role permissions; no authentication or server enforcement |
 | A8 | Request review and technician assignment/reassignment | Done (local prototype) | Sample queue supports search/status filters, reasoned review decisions, technician assignment/reassignment, and local status history; no backend synchronization |
 | A9 | Appointment scheduling and dual approval of proposed changes | Done (local prototype) | Proposal, tenant/admin decisions, and timestamps are local; scheduled time changes only after both approve, while rejection retains the current time |
-| A10 | Work status review, blockers, completion approval, closure, and reopening | Planned | Full lifecycle and 24-hour reopen rule pass API/UI tests |
+| A10 | Work status review, blockers, completion approval, closure, and reopening | Done (local prototype) | Travel/start/block/resume/completion history, tenant then admin closure approval, and a tested 24-hour reopen deadline are local previews; no API workflow is connected |
 | A11 | Notification integration and operational reports | Planned | Provider selected; events, recipients, retries, and reports validated |
 | A12 | Release, deployment, monitoring, backup, and support | Not Required Now | Explicitly excluded from this prototype request |
 

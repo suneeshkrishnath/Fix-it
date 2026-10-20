@@ -41,6 +41,7 @@ class MockAdminRequestRepository extends ChangeNotifier {
               reason: 'Request details verified.',
             ),
           ],
+          scheduledAt: DateTime(2026, 10, 20, 9),
         ),
         _seedRequest(
           id: 'request-1038',
@@ -285,6 +286,285 @@ class MockAdminRequestRepository extends ChangeNotifier {
               actor: 'System (local preview)',
               occurredAt: now,
             ),
+        ],
+      ),
+    );
+  }
+
+  void markTravelling(String requestId, {DateTime? now}) {
+    final request = _requireStatus(requestId, {
+      WorkRequestStatus.assigned,
+      WorkRequestStatus.reopened,
+    });
+    final occurredAt = now ?? DateTime.now();
+    _transition(
+      request,
+      WorkRequestStatus.travelling,
+      label: 'Technician travelling to site',
+      actor: request.assignedTechnicianName ?? 'Technician',
+      occurredAt: occurredAt,
+      reason: 'Tenant and admin preview recipients notified.',
+      travellingAt: occurredAt,
+    );
+  }
+
+  void startWork(String requestId, {DateTime? now}) {
+    final request = _requireStatus(requestId, {WorkRequestStatus.travelling});
+    final occurredAt = now ?? DateTime.now();
+    _transition(
+      request,
+      WorkRequestStatus.workStarted,
+      label: 'Work started',
+      actor: request.assignedTechnicianName ?? 'Technician',
+      occurredAt: occurredAt,
+      workStartedAt: occurredAt,
+    );
+  }
+
+  void blockWork(String requestId, String reason, {DateTime? now}) {
+    final request = _requireStatus(requestId, {WorkRequestStatus.workStarted});
+    if (reason.trim().isEmpty) {
+      throw ArgumentError.value(reason, 'reason', 'Block reason is required');
+    }
+    final occurredAt = now ?? DateTime.now();
+    _transition(
+      request,
+      WorkRequestStatus.workBlocked,
+      label: 'Work blocked',
+      actor: request.assignedTechnicianName ?? 'Technician',
+      occurredAt: occurredAt,
+      reason: reason.trim(),
+      blockedAt: occurredAt,
+      blockReason: reason.trim(),
+    );
+  }
+
+  void resumeWork(String requestId, {DateTime? now}) {
+    final request = _requireStatus(requestId, {WorkRequestStatus.workBlocked});
+    final occurredAt = now ?? DateTime.now();
+    _transition(
+      request,
+      WorkRequestStatus.workStarted,
+      label: 'Work resumed',
+      actor: request.assignedTechnicianName ?? 'Technician',
+      occurredAt: occurredAt,
+      resumedAt: occurredAt,
+    );
+  }
+
+  void completeWork(String requestId, String comments, {DateTime? now}) {
+    final request = _requireStatus(requestId, {WorkRequestStatus.workStarted});
+    if (comments.trim().isEmpty) {
+      throw ArgumentError.value(comments, 'comments', 'Comments are required');
+    }
+    final startedAt = request.workStartedAt;
+    if (startedAt == null) throw StateError('Work must be started first.');
+    final completedAt = now ?? DateTime.now();
+    if (completedAt.isBefore(startedAt)) {
+      throw ArgumentError.value(
+        completedAt,
+        'now',
+        'Cannot precede work start',
+      );
+    }
+    final completion = WorkCompletionRecord(
+      workStartedAt: startedAt,
+      completedAt: completedAt,
+      elapsedWorkMinutes: completedAt.difference(startedAt).inMinutes,
+      comments: comments.trim(),
+    );
+    _transition(
+      request,
+      WorkRequestStatus.awaitingTenantConfirmation,
+      label: 'Work completed',
+      actor: request.assignedTechnicianName ?? 'Technician',
+      occurredAt: completedAt,
+      reason: comments.trim(),
+      completions: [...request.completions, completion],
+    );
+  }
+
+  void recordTenantCompletionDecision(
+    String requestId, {
+    required bool accepted,
+    String reason = '',
+    DateTime? now,
+  }) {
+    final request = _requireStatus(requestId, {
+      WorkRequestStatus.awaitingTenantConfirmation,
+    });
+    if (!accepted && reason.trim().isEmpty) {
+      throw ArgumentError.value(
+        reason,
+        'reason',
+        'Rejection reason is required',
+      );
+    }
+    if (request.completions.isEmpty) {
+      throw StateError('No completion is awaiting tenant review.');
+    }
+    final occurredAt = now ?? DateTime.now();
+    final completions = [...request.completions];
+    completions[completions.length - 1] = completions.last.copyWith(
+      tenantDecision: accepted
+          ? CompletionDecision.accepted
+          : CompletionDecision.rejected,
+      tenantDecisionAt: occurredAt,
+      tenantReason: reason.trim().isEmpty ? null : reason.trim(),
+    );
+    _transition(
+      request,
+      accepted
+          ? WorkRequestStatus.awaitingAdminClosureApproval
+          : WorkRequestStatus.assigned,
+      label: accepted
+          ? 'Tenant accepted completion'
+          : 'Tenant rejected completion',
+      actor: 'Tenant (preview)',
+      occurredAt: occurredAt,
+      reason: reason.trim().isEmpty ? null : reason.trim(),
+      completions: completions,
+    );
+  }
+
+  void recordAdminClosureDecision(
+    String requestId, {
+    required bool approved,
+    String reason = '',
+    DateTime? now,
+  }) {
+    final request = _requireStatus(requestId, {
+      WorkRequestStatus.awaitingAdminClosureApproval,
+    });
+    if (!approved && reason.trim().isEmpty) {
+      throw ArgumentError.value(
+        reason,
+        'reason',
+        'Rejection reason is required',
+      );
+    }
+    if (request.completions.isEmpty ||
+        request.completions.last.tenantDecision !=
+            CompletionDecision.accepted) {
+      throw StateError('Tenant acceptance is required before admin review.');
+    }
+    final occurredAt = now ?? DateTime.now();
+    final completions = [...request.completions];
+    if (approved) {
+      completions[completions.length - 1] = completions.last.copyWith(
+        adminApprovedAt: occurredAt,
+      );
+    }
+    _transition(
+      request,
+      approved ? WorkRequestStatus.closed : WorkRequestStatus.assigned,
+      label: approved ? 'Admin approved closure' : 'Admin rejected closure',
+      actor: 'Admin',
+      occurredAt: occurredAt,
+      reason: reason.trim().isEmpty ? null : reason.trim(),
+      completions: completions,
+      closedAt: approved ? occurredAt : null,
+    );
+  }
+
+  void requestReopen(String requestId, String reason, {DateTime? now}) {
+    final request = _requireStatus(requestId, {WorkRequestStatus.closed});
+    if (reason.trim().isEmpty) {
+      throw ArgumentError.value(reason, 'reason', 'Reopen reason is required');
+    }
+    final closedAt = request.closedAt;
+    if (closedAt == null) throw StateError('Closed time is missing.');
+    final occurredAt = now ?? DateTime.now();
+    if (occurredAt.isBefore(closedAt) ||
+        occurredAt.isAfter(closedAt.add(const Duration(hours: 24)))) {
+      throw StateError('The 24-hour reopen window has expired.');
+    }
+    _transition(
+      request,
+      WorkRequestStatus.reopenPendingReview,
+      label: 'Tenant requested reopening',
+      actor: 'Tenant (preview)',
+      occurredAt: occurredAt,
+      reason: reason.trim(),
+      reopenRequestedAt: occurredAt,
+      reopenReason: reason.trim(),
+    );
+  }
+
+  void reviewReopenRequest(
+    String requestId, {
+    required bool accepted,
+    String reason = '',
+    DateTime? now,
+  }) {
+    final request = _requireStatus(requestId, {
+      WorkRequestStatus.reopenPendingReview,
+    });
+    if (!accepted && reason.trim().isEmpty) {
+      throw ArgumentError.value(
+        reason,
+        'reason',
+        'Rejection reason is required',
+      );
+    }
+    final occurredAt = now ?? DateTime.now();
+    _transition(
+      request,
+      accepted ? WorkRequestStatus.reopened : WorkRequestStatus.closed,
+      label: accepted ? 'Admin accepted reopening' : 'Admin rejected reopening',
+      actor: 'Admin',
+      occurredAt: occurredAt,
+      reason: reason.trim().isEmpty ? null : reason.trim(),
+    );
+  }
+
+  AdminRequestRecord _requireStatus(String id, Set<WorkRequestStatus> allowed) {
+    final request = _requests.firstWhere((item) => item.id == id);
+    if (!allowed.contains(request.status)) {
+      throw StateError('Action is not allowed while ${request.status.label}.');
+    }
+    return request;
+  }
+
+  void _transition(
+    AdminRequestRecord request,
+    WorkRequestStatus status, {
+    required String label,
+    required String actor,
+    required DateTime occurredAt,
+    String? reason,
+    DateTime? travellingAt,
+    DateTime? workStartedAt,
+    DateTime? blockedAt,
+    DateTime? resumedAt,
+    String? blockReason,
+    DateTime? closedAt,
+    DateTime? reopenRequestedAt,
+    String? reopenReason,
+    List<WorkCompletionRecord>? completions,
+  }) {
+    _updateRequest(
+      request.id,
+      (current) => current.copyWith(
+        status: status,
+        travellingAt: travellingAt,
+        workStartedAt: workStartedAt,
+        blockedAt: blockedAt,
+        resumedAt: resumedAt,
+        blockReason: blockReason,
+        closedAt: closedAt,
+        reopenRequestedAt: reopenRequestedAt,
+        reopenReason: reopenReason,
+        completions: completions,
+        history: [
+          ...current.history,
+          AdminRequestEvent(
+            label: label,
+            actor: actor,
+            occurredAt: occurredAt,
+            reason: reason,
+            technicianName: current.assignedTechnicianName,
+          ),
         ],
       ),
     );
