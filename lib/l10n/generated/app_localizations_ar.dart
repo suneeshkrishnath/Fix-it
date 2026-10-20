@@ -324,6 +324,113 @@ class AppLocalizationsAr extends AppLocalizations {
   String get technicianJobs => 'مهام الفني';
 
   @override
+  String get workflowExamples => 'أمثلة سير العمل';
+
+  @override
+  String get workflowDemoNotice =>
+      'أمثلة تجريبية لسير العمل؛ ليست مهاماً أو إشعارات مباشرة.';
+
+  @override
+  String get workflowStatusWorkAccepted => 'تم قبول العمل';
+
+  @override
+  String get workflowStatusWorkRejected => 'تم رفض العمل';
+
+  @override
+  String get workflowStatusTravelling => 'الفني في الطريق إلى الموقع';
+
+  @override
+  String get workflowStatusWorkStarted => 'بدأ العمل';
+
+  @override
+  String get workflowStatusWorkBlocked => 'العمل متوقف بسبب عائق';
+
+  @override
+  String get workflowStatusWorkCompleted => 'اكتمل العمل - بانتظار التأكيد';
+
+  @override
+  String get workflowStatusClosed => 'مغلق';
+
+  @override
+  String get workflowStatusReopened => 'أعيد فتحه';
+
+  @override
+  String get tenantNotification => 'معاينة إشعار المستأجر';
+
+  @override
+  String get adminNotification => 'معاينة إشعار المسؤول';
+
+  @override
+  String get tenantNotNotifiedDuringReview =>
+      'لا يتم إشعار المستأجر فوراً؛ تبقى الحالة لديه قيد الانتظار / قيد التنفيذ أثناء مراجعة المسؤول.';
+
+  @override
+  String get tenantNotifiedWorkAccepted =>
+      'يُبلغ المستأجر بقبول العمل مع عرض اسم الفني.';
+
+  @override
+  String get adminNotifiedWorkAccepted => 'يُبلغ المسؤول بقبول الفني للعمل.';
+
+  @override
+  String get adminNotifiedWorkRejected => 'يُبلغ المسؤول بسبب رفض الفني للعمل.';
+
+  @override
+  String get tenantNotifiedTravelling =>
+      'يُبلغ المستأجر بأن الفني في الطريق مع عرض اسم الفني.';
+
+  @override
+  String get adminNotifiedTravelling =>
+      'يُبلغ المسؤول بأن الفني في الطريق إلى الموقع.';
+
+  @override
+  String get tenantNotifiedWorkStarted => 'يُبلغ المستأجر ببدء العمل.';
+
+  @override
+  String get adminNotifiedWorkStarted => 'يُبلغ المسؤول ببدء العمل.';
+
+  @override
+  String get tenantNotifiedWorkBlocked =>
+      'يُبلغ المستأجر بتوقف العمل مع ذكر السبب.';
+
+  @override
+  String get adminNotifiedWorkBlocked =>
+      'يُبلغ المسؤول بتوقف العمل مع ذكر السبب.';
+
+  @override
+  String get tenantNotifiedWorkCompleted =>
+      'يُطلب من المستأجر مراجعة العمل المكتمل وقبوله أو رفضه.';
+
+  @override
+  String get adminNotifiedWorkCompleted =>
+      'يُبلغ المسؤول بانتظار التأكيد، مع تضمين الوقت المستغرق للسجل والفوترة.';
+
+  @override
+  String get tenantNotifiedClosed =>
+      'يُبلغ المستأجر بإغلاق الطلب بعد موافقة الطرفين.';
+
+  @override
+  String get adminNotifiedClosed =>
+      'يُبلغ المسؤول بإغلاق الطلب بعد موافقة الطرفين.';
+
+  @override
+  String get tenantNotifiedReopened => 'يُبلغ المستأجر بإعادة فتح الطلب.';
+
+  @override
+  String get adminNotifiedReopened =>
+      'يُبلغ المسؤول بإعادة فتح الطلب وحاجته للمراجعة.';
+
+  @override
+  String get workflowReason => 'السبب';
+
+  @override
+  String workflowElapsedMinutes(String minutes) {
+    return 'الوقت المستغرق: $minutes دقيقة';
+  }
+
+  @override
+  String get workflowEventTime => 'وقت الحدث';
+
+  @override
   String get assignedJobs => 'المهام المسندة';
 
   @override

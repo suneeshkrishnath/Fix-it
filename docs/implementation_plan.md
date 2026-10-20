@@ -17,7 +17,7 @@
 | 7A | Resident profile and case workflow mocks | Done | Mock tenant/property profile, case timeline, technician details, and closed cases. |
 | 8 | Move-out | Done | Local request submission and status tracking; no backend review updates. |
 | 9 | Shared backend and administrator tablet app | On Hold | Separate Android tablet module; admin review/reassignment and approval required before closure; tenant may reopen within 24 hours. |
-| 10 | Technician module in shared phone app | In Progress | Local mock basics are implemented; detailed statuses, notifications, elapsed-time billing/history, and dual-approval completion are Planned. |
+| 10 | Technician module in shared phone app | In Progress | Local login, jobs, and workflow-example tab are implemented; live status transitions, notifications, elapsed-time billing/history, and dual-approval completion are Planned. |
 | 11 | Notifications | Planned | Provider to be selected. |
 | 12 | Production deployment | Planned | Phone app, tablet app, and shared backend. |
 
@@ -543,7 +543,7 @@ Add a technician role to the existing Android phone app, sharing its installatio
 
 ### Technician Work Status and Notification Workflow
 
-Status: **Planned** (the local technician demo does not implement these notifications and approvals)
+Status: **Planned** (seeded workflow examples are visible; live transitions, notifications, and approvals are not implemented)
 
 1. **Work Accepted:** notify the tenant with the technician's name and notify the administrator.
 2. **Work Rejected:** require a reason and notify the administrator only. Keep the tenant-facing status Pending / In Progress while the administrator reviews and reassigns or takes another action.

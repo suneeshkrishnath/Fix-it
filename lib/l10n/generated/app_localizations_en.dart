@@ -327,6 +327,118 @@ class AppLocalizationsEn extends AppLocalizations {
   String get technicianJobs => 'Technician jobs';
 
   @override
+  String get workflowExamples => 'Workflow examples';
+
+  @override
+  String get workflowDemoNotice =>
+      'Dummy workflow examples; these are not live jobs or notifications.';
+
+  @override
+  String get workflowStatusWorkAccepted => 'Work Accepted';
+
+  @override
+  String get workflowStatusWorkRejected => 'Work Rejected';
+
+  @override
+  String get workflowStatusTravelling => 'Travelling to Site';
+
+  @override
+  String get workflowStatusWorkStarted => 'Work Started';
+
+  @override
+  String get workflowStatusWorkBlocked => 'Work Blocked';
+
+  @override
+  String get workflowStatusWorkCompleted =>
+      'Work Completed - Awaiting Confirmation';
+
+  @override
+  String get workflowStatusClosed => 'Closed';
+
+  @override
+  String get workflowStatusReopened => 'Reopened';
+
+  @override
+  String get tenantNotification => 'Tenant notification preview';
+
+  @override
+  String get adminNotification => 'Administrator notification preview';
+
+  @override
+  String get tenantNotNotifiedDuringReview =>
+      'No immediate tenant notification; tenant-facing status stays Pending / In Progress during admin review.';
+
+  @override
+  String get tenantNotifiedWorkAccepted =>
+      'Tenant is told the work was accepted and sees the technician\'s name.';
+
+  @override
+  String get adminNotifiedWorkAccepted =>
+      'Administrator is told the technician accepted the work.';
+
+  @override
+  String get adminNotifiedWorkRejected =>
+      'Administrator is notified with the technician\'s rejection reason.';
+
+  @override
+  String get tenantNotifiedTravelling =>
+      'Tenant is told the technician is travelling, including the technician\'s name.';
+
+  @override
+  String get adminNotifiedTravelling =>
+      'Administrator is told the technician is travelling to site.';
+
+  @override
+  String get tenantNotifiedWorkStarted => 'Tenant is told work has started.';
+
+  @override
+  String get adminNotifiedWorkStarted =>
+      'Administrator is told work has started.';
+
+  @override
+  String get tenantNotifiedWorkBlocked =>
+      'Tenant is told work is blocked; the reason is included.';
+
+  @override
+  String get adminNotifiedWorkBlocked =>
+      'Administrator is told work is blocked; the reason is included.';
+
+  @override
+  String get tenantNotifiedWorkCompleted =>
+      'Tenant is asked to review and accept or reject the completed work.';
+
+  @override
+  String get adminNotifiedWorkCompleted =>
+      'Administrator is told work awaits confirmation; elapsed time is included for history/billing.';
+
+  @override
+  String get tenantNotifiedClosed =>
+      'Tenant is told the work order is closed after both approvals.';
+
+  @override
+  String get adminNotifiedClosed =>
+      'Administrator is told the work order is closed after both approvals.';
+
+  @override
+  String get tenantNotifiedReopened =>
+      'Tenant is told the work order was reopened.';
+
+  @override
+  String get adminNotifiedReopened =>
+      'Administrator is told the work order was reopened and needs review.';
+
+  @override
+  String get workflowReason => 'Reason';
+
+  @override
+  String workflowElapsedMinutes(String minutes) {
+    return 'Time taken: $minutes min';
+  }
+
+  @override
+  String get workflowEventTime => 'Event time';
+
+  @override
   String get assignedJobs => 'Assigned';
 
   @override

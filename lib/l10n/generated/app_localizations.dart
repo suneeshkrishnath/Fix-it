@@ -692,6 +692,192 @@ abstract class AppLocalizations {
   /// **'Technician jobs'**
   String get technicianJobs;
 
+  /// No description provided for @workflowExamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Workflow examples'**
+  String get workflowExamples;
+
+  /// No description provided for @workflowDemoNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Dummy workflow examples; these are not live jobs or notifications.'**
+  String get workflowDemoNotice;
+
+  /// No description provided for @workflowStatusWorkAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Accepted'**
+  String get workflowStatusWorkAccepted;
+
+  /// No description provided for @workflowStatusWorkRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Rejected'**
+  String get workflowStatusWorkRejected;
+
+  /// No description provided for @workflowStatusTravelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Travelling to Site'**
+  String get workflowStatusTravelling;
+
+  /// No description provided for @workflowStatusWorkStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Started'**
+  String get workflowStatusWorkStarted;
+
+  /// No description provided for @workflowStatusWorkBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Blocked'**
+  String get workflowStatusWorkBlocked;
+
+  /// No description provided for @workflowStatusWorkCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Completed - Awaiting Confirmation'**
+  String get workflowStatusWorkCompleted;
+
+  /// No description provided for @workflowStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get workflowStatusClosed;
+
+  /// No description provided for @workflowStatusReopened.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopened'**
+  String get workflowStatusReopened;
+
+  /// No description provided for @tenantNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant notification preview'**
+  String get tenantNotification;
+
+  /// No description provided for @adminNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator notification preview'**
+  String get adminNotification;
+
+  /// No description provided for @tenantNotNotifiedDuringReview.
+  ///
+  /// In en, this message translates to:
+  /// **'No immediate tenant notification; tenant-facing status stays Pending / In Progress during admin review.'**
+  String get tenantNotNotifiedDuringReview;
+
+  /// No description provided for @tenantNotifiedWorkAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant is told the work was accepted and sees the technician\'s name.'**
+  String get tenantNotifiedWorkAccepted;
+
+  /// No description provided for @adminNotifiedWorkAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator is told the technician accepted the work.'**
+  String get adminNotifiedWorkAccepted;
+
+  /// No description provided for @adminNotifiedWorkRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator is notified with the technician\'s rejection reason.'**
+  String get adminNotifiedWorkRejected;
+
+  /// No description provided for @tenantNotifiedTravelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant is told the technician is travelling, including the technician\'s name.'**
+  String get tenantNotifiedTravelling;
+
+  /// No description provided for @adminNotifiedTravelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator is told the technician is travelling to site.'**
+  String get adminNotifiedTravelling;
+
+  /// No description provided for @tenantNotifiedWorkStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant is told work has started.'**
+  String get tenantNotifiedWorkStarted;
+
+  /// No description provided for @adminNotifiedWorkStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator is told work has started.'**
+  String get adminNotifiedWorkStarted;
+
+  /// No description provided for @tenantNotifiedWorkBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant is told work is blocked; the reason is included.'**
+  String get tenantNotifiedWorkBlocked;
+
+  /// No description provided for @adminNotifiedWorkBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator is told work is blocked; the reason is included.'**
+  String get adminNotifiedWorkBlocked;
+
+  /// No description provided for @tenantNotifiedWorkCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant is asked to review and accept or reject the completed work.'**
+  String get tenantNotifiedWorkCompleted;
+
+  /// No description provided for @adminNotifiedWorkCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator is told work awaits confirmation; elapsed time is included for history/billing.'**
+  String get adminNotifiedWorkCompleted;
+
+  /// No description provided for @tenantNotifiedClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant is told the work order is closed after both approvals.'**
+  String get tenantNotifiedClosed;
+
+  /// No description provided for @adminNotifiedClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator is told the work order is closed after both approvals.'**
+  String get adminNotifiedClosed;
+
+  /// No description provided for @tenantNotifiedReopened.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant is told the work order was reopened.'**
+  String get tenantNotifiedReopened;
+
+  /// No description provided for @adminNotifiedReopened.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator is told the work order was reopened and needs review.'**
+  String get adminNotifiedReopened;
+
+  /// No description provided for @workflowReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get workflowReason;
+
+  /// No description provided for @workflowElapsedMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Time taken: {minutes} min'**
+  String workflowElapsedMinutes(String minutes);
+
+  /// No description provided for @workflowEventTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Event time'**
+  String get workflowEventTime;
+
   /// No description provided for @assignedJobs.
   ///
   /// In en, this message translates to:

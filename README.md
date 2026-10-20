@@ -97,6 +97,8 @@ The current request categories are Plumbing, Electrical, Maintenance, Cleaning, 
 
 Sample technician assignments are stored alongside resident requests on the device. They are demonstrations, not real jobs.
 
+The **Workflow examples** tab shows dummy examples for accepted, rejected, travelling, started, blocked, completed, closed, and reopened work, with sample timestamps, reasons, elapsed time, and tenant/admin notification previews. These are illustrative records, not live status actions or delivered notifications.
+
 ## Prototype Behavior and Limits
 
 - Resident authentication accepts only the demo credentials above. Technician prototype sign-in accepts `TECH-001` by ID only. Both sessions and requests are stored locally with Hive.

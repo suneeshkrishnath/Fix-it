@@ -107,6 +107,14 @@ void main() {
       requestRepository.requests.where((item) => item.isSample),
       hasLength(2),
     );
+    await tester.tap(find.text('Workflow examples'));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('workflow-sample-workAccepted')),
+      findsOneWidget,
+    );
+    expect(find.text('Tenant notification preview'), findsWidgets);
+    expect(find.text('Administrator notification preview'), findsWidgets);
   });
 
   test(
