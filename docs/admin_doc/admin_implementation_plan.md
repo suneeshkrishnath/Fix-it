@@ -2,7 +2,7 @@
 
 ## Overall Status
 
-**Stage 9: On Hold.** This plan describes future work only. No administrator tablet app or shared backend exists in the current repository. The resident/technician phone app remains a separate app surface.
+**Stage 9: In Progress (local tablet prototype).** The administrator app is a separate Android tablet app in this repository. Its shared backend, production authentication, and deployment are not implemented. The resident/technician phone app remains a separate app surface.
 
 Implementation order is dependency-driven: establish the shared backend and authorization contract before building workflows that must synchronize with the phone app. Select technologies and APIs before implementation; React Native, Spring Boot, AWS, PostgreSQL, and Firebase in legacy planning material are not approved choices.
 
@@ -10,9 +10,9 @@ Implementation order is dependency-driven: establish the shared backend and auth
 
 | Stage | Aim | Status | Dependency / Exit |
 |---|---|---|---|
-| A1 | Confirm tablet-app packaging, user roles, permissions, and workflows | Planned | Product decisions recorded and approved |
+| A1 | Confirm tablet-app packaging, user roles, permissions, and workflows | Done | Separate Flutter Android tablet app in this repo; unique application ID; local prototype scope approved |
 | A2 | Define shared property, identity, request, assignment, appointment, and audit data | Planned | API/data model reviewed by phone and admin modules |
-| A3 | Implement backend authentication, role enforcement, and audit foundation | Planned | API tests prove role boundaries and actor/timestamp capture |
+| A3 | Implement backend authentication, role enforcement, and audit foundation | On Hold | Backend technology and hosting not selected; do not fake shared auth in the prototype |
 | A4 | Build tablet app foundation, navigation, responsive shell, and localization | Planned | Tablet layouts and accessibility baseline tested |
 | A5 | Campus, building/tower, and apartment management | Planned | Search, create, edit, deactivate, validation, and relationship rules work |
 | A6 | Resident/tenant and tenancy management | Planned | Residents link to apartments and tenancy; protected fields follow role rules |
@@ -21,7 +21,7 @@ Implementation order is dependency-driven: establish the shared backend and auth
 | A9 | Appointment scheduling and dual approval of proposed changes | Planned | Current appointment remains until tenant and admin both approve |
 | A10 | Work status review, blockers, completion approval, closure, and reopening | Planned | Full lifecycle and 24-hour reopen rule pass API/UI tests |
 | A11 | Notification integration and operational reports | Planned | Provider selected; events, recipients, retries, and reports validated |
-| A12 | Release, deployment, monitoring, backup, and support | Planned | Approved production environments and operational procedures accepted |
+| A12 | Release, deployment, monitoring, backup, and support | Not Required Now | Explicitly excluded from this prototype request |
 
 ## Detailed Acceptance Workflows
 
