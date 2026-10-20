@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'admin_dashboard.dart';
 import 'admin_theme.dart';
+import 'features/notifications/data/repositories/mock_notification_repository.dart';
+import 'features/notifications/presentation/admin_notifications_screen.dart';
 import 'features/requests/data/repositories/mock_admin_request_repository.dart';
 import 'features/requests/presentation/requests_management_screen.dart';
 import 'features/properties/data/repositories/mock_property_repository.dart';
@@ -10,8 +12,17 @@ import 'features/tenants/data/repositories/mock_tenant_repository.dart';
 import 'features/tenants/presentation/tenant_management_screen.dart';
 import 'features/technicians/data/repositories/mock_technician_management_repository.dart';
 import 'features/technicians/presentation/technician_management_screen.dart';
+import 'features/reports/presentation/admin_reports_screen.dart';
 
-enum AdminSection { overview, requests, properties, residents, technicians }
+enum AdminSection {
+  overview,
+  requests,
+  properties,
+  residents,
+  technicians,
+  notifications,
+  reports,
+}
 
 class AdminShell extends StatefulWidget {
   const AdminShell({super.key});
@@ -26,6 +37,7 @@ class _AdminShellState extends State<AdminShell> {
   final _tenantRepository = MockTenantRepository();
   final _technicianRepository = MockTechnicianManagementRepository();
   final _requestRepository = MockAdminRequestRepository();
+  final _notificationRepository = MockNotificationRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +93,14 @@ class _AdminShellState extends State<AdminShell> {
     AdminSection.technicians => TechnicianManagementScreen(
       key: const Key('technicians-section'),
       repository: _technicianRepository,
+    ),
+    AdminSection.notifications => AdminNotificationsScreen(
+      key: const Key('notifications-section'),
+      repository: _notificationRepository,
+    ),
+    AdminSection.reports => AdminReportsScreen(
+      key: const Key('reports-section'),
+      requests: _requestRepository,
     ),
   };
 }
@@ -180,6 +200,8 @@ IconData _iconFor(AdminSection section) => switch (section) {
   AdminSection.properties => Icons.apartment_outlined,
   AdminSection.residents => Icons.people_outline,
   AdminSection.technicians => Icons.engineering_outlined,
+  AdminSection.notifications => Icons.notifications_outlined,
+  AdminSection.reports => Icons.analytics_outlined,
 };
 
 String _labelFor(AdminSection section) => switch (section) {
@@ -188,4 +210,6 @@ String _labelFor(AdminSection section) => switch (section) {
   AdminSection.properties => 'Properties',
   AdminSection.residents => 'Tenants',
   AdminSection.technicians => 'Technicians',
+  AdminSection.notifications => 'Notifications',
+  AdminSection.reports => 'Reports',
 };

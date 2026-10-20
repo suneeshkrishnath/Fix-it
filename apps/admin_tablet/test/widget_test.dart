@@ -14,6 +14,16 @@ void main() {
 
     expect(find.text('Operations overview'), findsOneWidget);
     expect(find.text('SAMPLE DATA'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Requests requiring attention'),
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(CustomScrollView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     expect(find.text('Requests requiring attention'), findsOneWidget);
   });
 
@@ -379,6 +389,50 @@ void main() {
       throwsStateError,
     );
     expect(closedRequest.status, WorkRequestStatus.closed);
+  });
+
+  testWidgets('notification retry is recorded as preview only', (tester) async {
+    await tester.pumpWidget(const FixItAdminApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Notifications'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('notification-preview-notice')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const Key('notification-row-notice-assigned')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('No messages are sent.'), findsOneWidget);
+    expect(find.text('Noor Ahmed'), findsOneWidget);
+    expect(find.text('Imran Qureshi'), findsOneWidget);
+
+    await tester.ensureVisible(
+      find.byKey(const Key('record-notification-retry')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('record-notification-retry')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('State: Retry preview queued'), findsOneWidget);
+    expect(find.text('Retry previews: 1'), findsOneWidget);
+  });
+
+  testWidgets('reports derive status and assignment counts from requests', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const FixItAdminApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Reports'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Operational reports'), findsOneWidget);
+    expect(
+      find.text('LOCAL SAMPLE DATA · Current in-memory snapshot'),
+      findsOneWidget,
+    );
+    expect(find.text('Assignment events'), findsOneWidget);
+    expect(find.text('1'), findsWidgets);
+    expect(find.text('Appointment outcomes'), findsOneWidget);
   });
 }
 
