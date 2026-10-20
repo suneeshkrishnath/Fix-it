@@ -2,7 +2,7 @@
 
 ## Overall Status
 
-**Stage 9: On Hold.** This plan describes future work only. No administrator tablet app or shared backend exists in the current repository. The resident/technician phone app remains a separate app surface.
+**Stage 9: In Progress (local tablet prototype).** The administrator app is a separate Android tablet app in this repository. Its shared backend, production authentication, and deployment are not implemented. The resident/technician phone app remains a separate app surface.
 
 Implementation order is dependency-driven: establish the shared backend and authorization contract before building workflows that must synchronize with the phone app. Select technologies and APIs before implementation; React Native, Spring Boot, AWS, PostgreSQL, and Firebase in legacy planning material are not approved choices.
 
@@ -10,18 +10,18 @@ Implementation order is dependency-driven: establish the shared backend and auth
 
 | Stage | Aim | Status | Dependency / Exit |
 |---|---|---|---|
-| A1 | Confirm tablet-app packaging, user roles, permissions, and workflows | Planned | Product decisions recorded and approved |
-| A2 | Define shared property, identity, request, assignment, appointment, and audit data | Planned | API/data model reviewed by phone and admin modules |
-| A3 | Implement backend authentication, role enforcement, and audit foundation | Planned | API tests prove role boundaries and actor/timestamp capture |
-| A4 | Build tablet app foundation, navigation, responsive shell, and localization | Planned | Tablet layouts and accessibility baseline tested |
-| A5 | Campus, building/tower, and apartment management | Planned | Search, create, edit, deactivate, validation, and relationship rules work |
-| A6 | Resident/tenant and tenancy management | Planned | Residents link to apartments and tenancy; protected fields follow role rules |
-| A7 | Technician accounts, specialties, availability, roles, and permissions | Planned | Accounts can be managed and changes are auditable |
-| A8 | Request review and technician assignment/reassignment | Planned | Queue, filters, decision reasons, assignment, and status history work end-to-end |
-| A9 | Appointment scheduling and dual approval of proposed changes | Planned | Current appointment remains until tenant and admin both approve |
-| A10 | Work status review, blockers, completion approval, closure, and reopening | Planned | Full lifecycle and 24-hour reopen rule pass API/UI tests |
-| A11 | Notification integration and operational reports | Planned | Provider selected; events, recipients, retries, and reports validated |
-| A12 | Release, deployment, monitoring, backup, and support | Planned | Approved production environments and operational procedures accepted |
+| A1 | Confirm tablet-app packaging, user roles, permissions, and workflows | Done | Separate Flutter Android tablet app in this repo; unique application ID; local prototype scope approved |
+| A2 | Define shared property, identity, request, assignment, appointment, and audit data | Done | Backend-neutral entity contract recorded in `admin_data_contract.md` |
+| A3 | Implement backend authentication, role enforcement, and audit foundation | On Hold | Backend stack, auth provider, hosting, and security policy need approval; prototype will use local mock data only |
+| A4 | Build tablet app foundation, navigation, responsive shell, and localization | Done | Separate Android app identity, tablet navigation shell, mock operations overview, and distinct theme |
+| A5 | Campus, building/tower, and apartment management | Done (local prototype) | In-memory sample hierarchy supports search, filters, add/edit, and safe deactivation; no persistence/backend sync |
+| A6 | Resident/tenant and tenancy management | Done (local prototype) | Add tenants from active apartments with tenancy dates; agreement attachment is a placeholder; data is in-memory only |
+| A7 | Technician accounts, specialties, availability, roles, and permissions | Done (local prototype) | Sample technician records and editable local role permissions; no authentication or server enforcement |
+| A8 | Request review and technician assignment/reassignment | Done (local prototype) | Sample queue supports search/status filters, reasoned review decisions, technician assignment/reassignment, and local status history; no backend synchronization |
+| A9 | Appointment scheduling and dual approval of proposed changes | Done (local prototype) | Proposal, tenant/admin decisions, and timestamps are local; scheduled time changes only after both approve, while rejection retains the current time |
+| A10 | Work status review, blockers, completion approval, closure, and reopening | Done (local prototype) | Travel/start/block/resume/completion history, tenant then admin closure approval, and a tested 24-hour reopen deadline are local previews; no API workflow is connected |
+| A11 | Notification previews and operational reports | Done (local prototype) | Recipient/event previews, locally recorded retry previews, and reports derived from in-memory requests; no provider or outbound delivery is selected or connected |
+| A12 | Release, deployment, monitoring, backup, and support | Not Required Now | Explicitly excluded from this prototype request |
 
 ## Detailed Acceptance Workflows
 

@@ -2,7 +2,9 @@
 
 ## Status and Scope
 
-**Status: On Hold / Planned.** The administrator module is not present in the current application. It is planned as a separate Android tablet app, distinct from the resident/technician phone app. A sibling Flutter app in this repository is the proposed packaging; confirm repository/app identity and shared-code boundaries before implementation.
+**Status: In Progress (local prototype).** The administrator module is a separate Android tablet app in this repository, distinct from the resident/technician phone app, with a unique application ID. Shared backend and production authentication remain unimplemented.
+
+The current admin prototype provides a tablet dashboard, local campus/building/apartment management, tenant creation from active apartments, sample technician account management, and local role-permission profiles. The agreement attachment control is a placeholder; no file is selected or stored. All records are in-memory and reset on app restart. Request operations, real authentication, server-enforced roles, and backend synchronization are not implemented yet.
 
 The admin app and phone app must use a shared backend for identity, property records, requests, assignments, appointments, work status, and audit history. The existing resident and technician prototypes use local mock data and are not a backend contract. Backend framework, hosting, database, authentication provider, and notification provider are undecided.
 
