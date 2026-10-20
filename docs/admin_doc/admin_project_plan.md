@@ -4,7 +4,7 @@
 
 **Status: In Progress (local prototype).** The administrator module is a separate Android tablet app in this repository, distinct from the resident/technician phone app, with a unique application ID. Shared backend and production authentication remain unimplemented.
 
-The current admin prototype provides a tablet dashboard and local campus, building/block/tower, and apartment lists with search/filtering and add/edit/deactivate controls. Property changes are in-memory and reset on app restart. Tenant management, file storage, request operations, role enforcement, and backend synchronization are not implemented yet.
+The current admin prototype provides a tablet dashboard and local campus, building/block/tower, and apartment lists with search/filtering and add/edit/deactivate controls. Tenant management can add tenant contact details to an active apartment with tenancy dates. The agreement attachment control is a placeholder; no file is selected or stored. Property, tenant, and tenancy changes are in-memory and reset on app restart. Request operations, technician/admin role enforcement, and backend synchronization are not implemented yet.
 
 The admin app and phone app must use a shared backend for identity, property records, requests, assignments, appointments, work status, and audit history. The existing resident and technician prototypes use local mock data and are not a backend contract. Backend framework, hosting, database, authentication provider, and notification provider are undecided.
 

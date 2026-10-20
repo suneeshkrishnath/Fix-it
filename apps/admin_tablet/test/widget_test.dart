@@ -44,4 +44,45 @@ void main() {
 
     expect(find.text('A-999'), findsOneWidget);
   });
+
+  testWidgets(
+    'tenant can be added to a listed apartment with agreement placeholder',
+    (tester) async {
+      await tester.pumpWidget(const FixItAdminApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Tenants'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('add-tenant-action')));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('tenant-name-field')),
+        'Fatima Noor',
+      );
+      await tester.enterText(
+        find.byKey(const Key('tenant-phone-field')),
+        '+971 50 555 0101',
+      );
+      await tester.enterText(
+        find.byKey(const Key('tenant-email-field')),
+        'fatima.noor@example.test',
+      );
+
+      await tester.tap(find.byKey(const Key('tenant-apartment-field')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('A-302').last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('agreement-placeholder')));
+      await tester.pumpAndSettle();
+      expect(find.text('Upload planned'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('save-tenant')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Fatima Noor'), findsOneWidget);
+      expect(find.textContaining('A-302'), findsNWidgets(2));
+    },
+  );
 }

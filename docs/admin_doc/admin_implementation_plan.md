@@ -15,7 +15,7 @@ Implementation order is dependency-driven: establish the shared backend and auth
 | A3 | Implement backend authentication, role enforcement, and audit foundation | On Hold | Backend stack, auth provider, hosting, and security policy need approval; prototype will use local mock data only |
 | A4 | Build tablet app foundation, navigation, responsive shell, and localization | Done | Separate Android app identity, tablet navigation shell, mock operations overview, and distinct theme |
 | A5 | Campus, building/tower, and apartment management | Done (local prototype) | In-memory sample hierarchy supports search, filters, add/edit, and safe deactivation; no persistence/backend sync |
-| A6 | Resident/tenant and tenancy management | Planned | Residents link to apartments and tenancy; protected fields follow role rules |
+| A6 | Resident/tenant and tenancy management | Done (local prototype) | Add tenants from active apartments with tenancy dates; agreement attachment is a placeholder; data is in-memory only |
 | A7 | Technician accounts, specialties, availability, roles, and permissions | Planned | Accounts can be managed and changes are auditable |
 | A8 | Request review and technician assignment/reassignment | Planned | Queue, filters, decision reasons, assignment, and status history work end-to-end |
 | A9 | Appointment scheduling and dual approval of proposed changes | Planned | Current appointment remains until tenant and admin both approve |

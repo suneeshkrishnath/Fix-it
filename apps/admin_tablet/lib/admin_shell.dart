@@ -4,6 +4,8 @@ import 'admin_dashboard.dart';
 import 'admin_theme.dart';
 import 'features/properties/data/repositories/mock_property_repository.dart';
 import 'features/properties/presentation/property_management_screen.dart';
+import 'features/tenants/data/repositories/mock_tenant_repository.dart';
+import 'features/tenants/presentation/tenant_management_screen.dart';
 
 enum AdminSection { overview, requests, properties, residents, technicians }
 
@@ -17,6 +19,7 @@ class AdminShell extends StatefulWidget {
 class _AdminShellState extends State<AdminShell> {
   AdminSection _section = AdminSection.overview;
   final _propertyRepository = MockPropertyRepository();
+  final _tenantRepository = MockTenantRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -65,11 +68,10 @@ class _AdminShellState extends State<AdminShell> {
       key: const Key('properties-section'),
       repository: _propertyRepository,
     ),
-    AdminSection.residents => const AdminPlaceholder(
-      title: 'Residents and tenancy',
-      description: 'Add tenants from a selected apartment and manage tenancy details. Local sample data only.',
-      icon: Icons.people_outline,
-      key: Key('residents-section'),
+    AdminSection.residents => TenantManagementScreen(
+      key: const Key('residents-section'),
+      properties: _propertyRepository,
+      tenants: _tenantRepository,
     ),
     AdminSection.technicians => const AdminPlaceholder(
       title: 'Technicians and roles',
@@ -181,6 +183,6 @@ String _labelFor(AdminSection section) => switch (section) {
   AdminSection.overview => 'Overview',
   AdminSection.requests => 'Requests',
   AdminSection.properties => 'Properties',
-  AdminSection.residents => 'Residents',
+  AdminSection.residents => 'Tenants',
   AdminSection.technicians => 'Technicians',
 };
