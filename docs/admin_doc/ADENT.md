@@ -5,7 +5,7 @@
 - This folder documents the planned administrator module for Fix-it.
 - The admin module is a separate Android tablet app, not an admin mode inside the resident/technician phone app.
 - Proposed packaging is a sibling Flutter app in the same repository; confirm app identity, workspace, and shared-code boundaries before scaffolding.
-- Stage 9 is **On Hold**. Do not imply admin screens, backend integration, account management, or notification delivery already exist.
+- The admin tablet prototype is in progress. The shared backend, server-enforced roles, and notification delivery are not implemented; do not describe local mock behavior as production-ready.
 
 ## Before Implementation
 
@@ -13,9 +13,9 @@ Read:
 
 1. `docs/project_planning.md` for product roles and workflow decisions.
 2. `docs/implementation_plan.md` Stage 9 for the shared backend/admin scope and current hold status.
-3. `.docs/Admin_doc/admin_project_plan.md` for the admin module requirements.
-4. `.docs/Admin_doc/admin_implementation_plan.md` for implementation sequencing and acceptance gates.
-5. `.docs/Admin_doc/admin_ui_guidelines.md` for tablet behavior.
+3. `docs/admin_doc/admin_project_plan.md` for the admin module requirements.
+4. `docs/admin_doc/admin_implementation_plan.md` for implementation sequencing and acceptance gates.
+5. `docs/admin_doc/admin_ui_guidelines.md` for tablet behavior.
 
 ## Scope
 
@@ -25,8 +25,8 @@ The current resident/technician prototypes use local mock data. Do not connect a
 
 ## Engineering Requirements
 
-- Use Flutter and Dart for Android tablet UI and follow the selected repository architecture.
-- Preserve a separate app entry point and application identity from the phone app if implementing the planned sibling app.
+- Use Flutter and Dart for the Android tablet app and follow the selected repository architecture.
+- Keep a separate app entry point and application identity from the phone app, in this same repository.
 - Define repository/API boundaries; keep transport and persistence out of widgets.
 - Enforce role permissions in the backend/API, not only by hiding UI controls.
 - Record actor, timestamp, decision, and required reason for audited work-order events.
