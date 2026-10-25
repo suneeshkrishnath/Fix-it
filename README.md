@@ -32,25 +32,45 @@ flutter run -d <device-id>
 
 ## Build Android Packages
 
-Build a debug APK for development/testing:
+### Resident / Tenant Phone App
+
+Run from the repository root:
 
 ```powershell
+flutter pub get
 flutter build apk --debug
 ```
 
-Build a release-mode APK for device testing:
+For a release APK or App Bundle:
 
 ```powershell
 flutter build apk --release
-```
-
-Build an Android App Bundle:
-
-```powershell
 flutter build appbundle --release
 ```
 
-Output files are created under `build\app\outputs\flutter-apk\` for APKs and `build\app\outputs\bundle\release\` for the App Bundle. The current Android release configuration uses the debug signing key. This is suitable for local testing, not Play Store distribution; configure a private release keystore before publishing.
+Outputs are created under `build\app\outputs\flutter-apk\` for APKs and `build\app\outputs\bundle\release\` for the App Bundle.
+
+### Administrator Tablet App
+
+The administrator app is a separate Flutter package with application ID `com.iks.mobile.admin_tablet`. From the repository root, build a debug APK with:
+
+```powershell
+Push-Location apps/admin_tablet
+flutter pub get
+flutter build apk --debug
+Pop-Location
+```
+
+For a release APK or App Bundle:
+
+```powershell
+Push-Location apps/admin_tablet
+flutter build apk --release
+flutter build appbundle --release
+Pop-Location
+```
+
+Admin outputs are under `apps\admin_tablet\build\app\outputs\flutter-apk\` for APKs and `apps\admin_tablet\build\app\outputs\bundle\release\` for the App Bundle. Both apps currently use the debug signing key for local builds. Configure a private release keystore before Play Store distribution.
 
 ## Install on an Android Phone
 
@@ -105,8 +125,8 @@ The **Workflow examples** tab shows dummy examples for accepted, rejected, trave
 ## Prototype Behavior and Limits
 
 - Resident authentication accepts only the demo credentials above. Technician prototype sign-in accepts `TECH-001` by ID only. Both sessions and requests are stored locally with Hive.
-- Technician status updates, tenant appointment decisions, request closure, and reopening are local prototype behavior. There is no backend synchronization or administrator app; an appointment proposal remains pending until both tenant and administrator approval exist.
-- Photo attachments, the administrator tablet app, production authentication, push notifications, online payments, and backend integrations are not implemented. Profile and move-out data are mock/local; move-out status is not updated by an administrator.
+- Technician status updates, tenant appointment decisions, request closure, and reopening are local prototype behavior. The separate administrator tablet app also uses in-memory sample data and does not synchronize with the phone app. Appointment proposals require tenant and administrator approval in the prototype, but those decisions are not shared across apps.
+- Photo uploads, production authentication, push delivery, online payments, and backend integrations are not implemented. Administrator notification and report screens are previews based on local sample data. Profile and move-out data are mock/local; move-out status is not updated by an administrator.
 - Reinstalling or clearing app data may remove locally stored prototype information.
 
 ## Checks
